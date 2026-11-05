@@ -1,0 +1,150 @@
+{
+  "cursor": "WzAsMjk1XQ",
+  "truncated": false,
+  "lines": [
+    [
+      1793898550517,
+      "Initializing build environment..."
+    ],
+    [
+      1793898552475,
+      "Success: Finished initializing build environment"
+    ],
+    [
+      1793898554379,
+      "Cloning repository..."
+    ],
+    [
+      1793898555775,
+      "Restoring from dependencies cache"
+    ],
+    [
+      1793898555777,
+      "Restoring from build output cache"
+    ],
+    [
+      1793898555781,
+      "Detected the following tools from environment: npm@10.9.2, nodejs@24.22.1"
+    ],
+    [
+      1793898556371,
+      "Installing project dependencies: npm clean-install --progress=false"
+    ],
+    [
+      1793898557559,
+      "npm error code EUSAGE"
+    ],
+    [
+      1793898557559,
+      "npm error"
+    ],
+    [
+      1793898557559,
+      "npm error `npm ci` can only install packages when your package.json and package-lock.json or npm-shrinkwrap.json are in sync. Please update your lock file with `npm install` before continuing."
+    ],
+    [
+      1793898557559,
+      "npm error"
+    ],
+    [
+      1793898557559,
+      "npm error Missing: @cloudflare/workers-types@4.20260702.1 from lock file"
+    ],
+    [
+      1793898557559,
+      "npm error"
+    ],
+    [
+      1793898557559,
+      "npm error Clean install a project"
+    ],
+    [
+      1793898557559,
+      "npm error"
+    ],
+    [
+      1793898557559,
+      "npm error Usage:"
+    ],
+    [
+      1793898557559,
+      "npm error npm ci"
+    ],
+    [
+      1793898557559,
+      "npm error"
+    ],
+    [
+      1793898557559,
+      "npm error Options:"
+    ],
+    [
+      1793898557559,
+      "npm error [--install-strategy <hoisted|nested|shallow|linked>] [--legacy-bundling]"
+    ],
+    [
+      1793898557560,
+      "npm error [--global-style] [--omit <dev|optional|peer> [--omit <dev|optional|peer> ...]]"
+    ],
+    [
+      1793898557560,
+      "npm error [--include <prod|dev|optional|peer> [--include <prod|dev|optional|peer> ...]]"
+    ],
+    [
+      1793898557560,
+      "npm error [--strict-peer-deps] [--foreground-scripts] [--ignore-scripts] [--no-audit]"
+    ],
+    [
+      1793898557560,
+      "npm error [--no-bin-links] [--no-fund] [--dry-run]"
+    ],
+    [
+      1793898557560,
+      "npm error [-w|--workspace <workspace-name> [-w|--workspace <workspace-name> ...]]"
+    ],
+    [
+      1793898557560,
+      "npm error [-ws|--workspaces] [--include-workspace-root] [--install-links]"
+    ],
+    [
+      1793898557560,
+      "npm error"
+    ],
+    [
+      1793898557560,
+      "npm error aliases: clean-install, ic, install-clean, isntall-clean"
+    ],
+    [
+      1793898557560,
+      "npm error"
+    ],
+    [
+      1793898557560,
+      "npm error Run \"npm help ci\" for more info"
+    ],
+    [
+      1793898557560,
+      "npm error A complete log of this run can be found in: /opt/buildhome/.npm/_logs/2026-11-05T17_09_16_707Z-debug-0.log"
+    ],
+    [
+      1793898557604,
+      "Failed: error occurred while installing tools or dependencies"
+    ]
+  ],
+  "events": [
+    {
+      "type": "initializing",
+      "started_on": "2026-11-05T17:09:10.517Z",
+      "ended_on": "2026-11-05T17:09:14.021Z"
+    },
+    {
+      "type": "cloning",
+      "started_on": "2026-11-05T17:09:14.021Z",
+      "ended_on": "2026-11-05T17:09:15.410Z"
+    },
+    {
+      "type": "installing_tools_and_deps",
+      "started_on": "2026-11-05T17:09:15.410Z"
+    }
+  ]
+}

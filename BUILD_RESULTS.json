@@ -2,11 +2,11 @@
   "schemaVersion": 1,
   "specVersion": "1.7",
   "project": "AI Travel Planner / Elsewhere",
-  "generatedAt": "2026-11-05T17:05:34.804Z",
+  "generatedAt": "2026-11-05T17:17:22.938Z",
   "execution": {
     "startedAt": "2026-11-05T16:36:10Z",
     "endedAt": null,
-    "elapsedSeconds": 1765,
+    "elapsedSeconds": 2473,
     "deliveryLimitSeconds": 28800,
     "completionReason": "Implementation checkpoint; validation and deployment in progress",
     "humanInterventions": [
@@ -19,9 +19,9 @@
     "note": "Observed HEAD when report was generated; reports are necessarily committed after this observation."
   },
   "deployment": {
-    "status": "not deployed",
+    "status": "first GitHub build failed; corrected lockfile awaiting push",
     "publicUrl": "https://ai-travel-planner-v1-codex.thebuildhypothesis.com",
-    "githubBuildsVerification": "pending",
+    "githubBuildsVerification": "failed: npm ci missing optional peer in initial npm-11 lockfile; repaired using npm 10.9.2",
     "deployedCommitSha": null
   },
   "requirements": [
@@ -76,25 +76,28 @@
     {
       "reference": "2.5",
       "description": "Google place research and clearly labeled estimates",
-      "status": "Implemented but Unverified",
+      "status": "Verified",
       "evidence": [
-        "Google Pro endpoint mocked successfully; external details contain names, addresses, coordinates and Maps links; no hours/prices claimed verified."
+        "Google Pro endpoint mocked successfully; external details contain names, addresses, coordinates and Maps links; no hours/prices claimed verified.",
+        "evidence/live-local.json: 8 real Places results"
       ]
     },
     {
       "reference": "2.6",
       "description": "Interactive map and day-linked locations",
-      "status": "Implemented but Unverified",
+      "status": "Verified",
       "evidence": [
-        "Leaflet/OpenStreetMap implementation; pending browser tile/marker checks."
+        "Leaflet/OpenStreetMap implementation; pending browser tile/marker checks.",
+        "8 desktop/mobile browser tests include map marker/popup; evidence/map-desktop.png"
       ]
     },
     {
       "reference": "2.7",
       "description": "Polished responsive accessible travel UI",
-      "status": "Implemented but Unverified",
+      "status": "Verified",
       "evidence": [
-        "Production build and strict frontend typecheck passed; pending real-browser visual check."
+        "Production build and strict frontend typecheck passed; pending real-browser visual check.",
+        "8 browser tests; desktop/mobile screenshots; no horizontal overflow"
       ]
     },
     {
@@ -364,9 +367,10 @@
     {
       "reference": "11",
       "description": "Commit/push and GitHub-triggered Workers Builds deployment",
-      "status": "Not Started",
+      "status": "Partial",
       "evidence": [
-        "Source not pushed at this checkpoint."
+        "Source not pushed at this checkpoint.",
+        "Application and initial reports committed/pushed; first GitHub build failed; corrected lockfile pending retry"
       ]
     },
     {
@@ -469,55 +473,81 @@
   "checks": [
     {
       "command": "npm run typecheck",
-      "environment": "local",
+      "environment": "local frontend/Worker",
       "result": "passed",
-      "evidence": "PROGRESS.md: 2026-11-05T16:58Z"
-    },
-    {
-      "command": "npm run build",
-      "environment": "local production bundle",
-      "result": "passed",
-      "evidence": "PROGRESS.md: Vite 7.3.7 successful build"
+      "evidence": "PROGRESS.md"
     },
     {
       "command": "npm test",
       "environment": "workerd/local D1; mocked external services",
       "result": "passed",
       "counts": {
-        "passed": 30,
+        "passed": 31,
         "failed": 0
       },
-      "evidence": "tests/app.test.ts; PROGRESS.md"
+      "evidence": "tests/app.test.ts"
     },
     {
-      "command": "bash -c source cloudflare.env; npx wrangler d1 migrations apply DB --remote",
-      "environment": "Cloudflare remote D1",
+      "command": "env LD_LIBRARY_PATH=/tmp/travel-browser-libs/root/usr/lib/x86_64-linux-gnu npx playwright test",
+      "environment": "local Worker, real Chromium desktop/mobile",
+      "result": "passed",
+      "counts": {
+        "passed": 8,
+        "failed": 0
+      },
+      "evidence": "evidence/discover-desktop.png; evidence/itinerary-mobile.png; evidence/map-desktop.png"
+    },
+    {
+      "command": "node scripts/live-local.mjs",
+      "environment": "local Worker, real OpenAI and Google",
+      "result": "passed",
+      "counts": {
+        "passed": 3,
+        "failed": 0
+      },
+      "evidence": "evidence/live-local.json"
+    },
+    {
+      "command": "npx --yes npm@10.9.2 ci --ignore-scripts --no-audit --no-fund --dry-run",
+      "environment": "Cloudflare-matching npm 10.9.2",
+      "result": "passed",
+      "evidence": "Missing peer entry repaired by regenerating lockfile"
+    },
+    {
+      "command": "npm run build",
+      "environment": "Vite production bundle",
+      "result": "passed",
+      "evidence": "PROGRESS.md"
+    },
+    {
+      "command": "npx wrangler d1 migrations apply DB --remote",
+      "environment": "Cloudflare D1",
       "result": "passed",
       "evidence": "0001_initial.sql: 24 commands succeeded"
     },
     {
-      "command": "npm run db:local",
-      "environment": "local D1",
-      "result": "passed",
-      "evidence": "0001_initial.sql: 24 commands succeeded"
+      "command": "GitHub push-event build f153f96177827c3dc7f2accafe49d3af83304ad8",
+      "environment": "Cloudflare Workers Builds",
+      "result": "failed",
+      "evidence": "evidence/latest-build-log.json: npm ci missing @cloudflare/workers-types@4 optional peer"
     }
   ],
   "integrations": {
     "llm": {
       "provider": "openai",
       "model": "gpt-4o-mini",
-      "status": "mocked integration verified; live call pending"
+      "status": "live local integration passed; production pending"
     },
     "googlePlaces": {
-      "status": "mocked request/SKU accounting verified; live call pending"
+      "status": "live local integration passed: 8 results"
     },
     "maps": {
-      "status": "implemented, browser verification pending"
+      "status": "browser marker/popup verified on desktop and mobile"
     },
     "cloudflareEmail": {
       "binding": "EMAIL",
       "senderVariable": "EMAIL_FROM",
-      "status": "mocked token/delivery workflows verified; live delivery pending"
+      "status": "mocked delivery/token tests passed; production pending"
     }
   },
   "infrastructure": {
@@ -541,15 +571,21 @@
   "issues": [
     {
       "severity": "medium",
-      "description": "Live service and deployment verification pending at this checkpoint.",
-      "impact": "Production operation not yet demonstrated.",
-      "followUp": "Complete live API, browser, deployment and build verification."
+      "description": "First GitHub deployment failed during npm ci; corrected compatible lockfile ready.",
+      "impact": "Production still serves the original placeholder.",
+      "followUp": "Push and verify new GitHub-triggered build."
+    },
+    {
+      "severity": "medium",
+      "description": "Real transactional inbox delivery not verified.",
+      "impact": "Account verification/recovery require actual email receipt.",
+      "followUp": "Verify production binding and delivery to a controlled inbox."
     },
     {
       "severity": "low",
-      "description": "No authoritative billing reconciliation, live opening hours, availability or routing.",
-      "impact": "Travel and cost values remain clearly labeled estimates.",
-      "followUp": "Verify travel details with operators; reconcile provider invoices separately."
+      "description": "No live opening hours/availability, routed directions or authoritative billing reconciliation.",
+      "impact": "Travel and cost values require independent verification.",
+      "followUp": "Use direct venue/provider checks."
     }
   ],
   "costs": {
@@ -562,11 +598,11 @@
   },
   "summary": {
     "counts": {
-      "Verified": 43,
-      "Implemented but Unverified": 9,
-      "Partial": 1,
-      "Not Started": 2
+      "Verified": 46,
+      "Implemented but Unverified": 6,
+      "Partial": 2,
+      "Not Started": 1
     },
-    "outcome": "Application implemented and 30 local mocked-service integration tests passed; production deployment and live integrations pending."
+    "outcome": "Working application validated by 31 Worker integration tests, 8 real-browser tests, and live OpenAI/Google checks through the local Worker. First GitHub deployment failed at dependency installation; npm-10-compatible lockfile correction is ready for retry."
   }
 }

@@ -1,6 +1,83 @@
 // Live provider smoke through the local application, never reads API keys.
-import {writeFileSync} from 'node:fs';
-const origin='http://localhost:8787';let cookie='';const results=[];
-async function req(path,method='GET',body){const r=await fetch(origin+'/api'+path,{method,headers:{Cookie:cookie,...(method==='GET'?{}:{Origin:origin,'Content-Type':'application/json'})},body:body?JSON.stringify(body):undefined});if(r.headers.get('set-cookie'))cookie=r.headers.get('set-cookie').split(';')[0];const d=await r.json();return {status:r.status,data:d}}
-try{await req('/session');const t=await req('/trips','POST',{title:'Live integration check: Kyoto',destination:'Kyoto, Japan',preferences:{days:2,travelers:2,budget:500,currency:'USD',pace:'relaxed'}});if(t.status!==201)throw new Error('Trip setup failed');const started=Date.now();const generated=await req('/trips/'+t.data.trip.id+'/chat','POST',{version:0,content:'Plan two relaxed days in Kyoto with two activities each day. Keep within the group budget and leave travel buffers. Include estimated costs and approximate coordinates.'});results.push({check:'live OpenAI itinerary generation',status:generated.status,passed:generated.status===200,durationMs:Date.now()-started,days:generated.data.trip?.itinerary?.length||0,error:generated.data.error||null});if(generated.status===200){const reopened=await req('/trips/'+t.data.trip.id);results.push({check:'live response persisted with conversation',passed:reopened.data.messages?.length===2});}
-const places=await req('/trips/'+t.data.trip.id+'/places','POST',{query:'Kyoto temples'});results.push({check:'live Google Places search',status:places.status,passed:places.status===200,places:places.data.places?.length||0,error:places.data.error||null});await req('/trips/'+t.data.trip.id,'DELETE',{confirm:true});}catch(e){results.push({check:'smoke execution',passed:false,error:e.message})}writeFileSync('evidence/live-local.json',JSON.stringify({at:new Date().toISOString(),environment:'Local Worker, real external provider calls',results},null,2)+'\n');console.log(JSON.stringify(results,null,2));
+import { writeFileSync } from "node:fs";
+const origin = "http://localhost:8787";
+let cookie = "";
+const results = [];
+async function req(path, method = "GET", body) {
+  const r = await fetch(origin + "/api" + path, {
+    method,
+    headers: {
+      Cookie: cookie,
+      ...(method === "GET"
+        ? {}
+        : { Origin: origin, "Content-Type": "application/json" }),
+    },
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  if (r.headers.get("set-cookie"))
+    cookie = r.headers.get("set-cookie").split(";")[0];
+  const d = await r.json();
+  return { status: r.status, data: d };
+}
+try {
+  await req("/session");
+  const t = await req("/trips", "POST", {
+    title: "Live integration check: Kyoto",
+    destination: "Kyoto, Japan",
+    preferences: {
+      days: 2,
+      travelers: 2,
+      budget: 500,
+      currency: "USD",
+      pace: "relaxed",
+    },
+  });
+  if (t.status !== 201) throw new Error("Trip setup failed");
+  const started = Date.now();
+  const generated = await req("/trips/" + t.data.trip.id + "/chat", "POST", {
+    version: 0,
+    content:
+      "Plan two relaxed days in Kyoto with two activities each day. Keep within the group budget and leave travel buffers. Include estimated costs and approximate coordinates.",
+  });
+  results.push({
+    check: "live OpenAI itinerary generation",
+    status: generated.status,
+    passed: generated.status === 200,
+    durationMs: Date.now() - started,
+    days: generated.data.trip?.itinerary?.length || 0,
+    error: generated.data.error || null,
+  });
+  if (generated.status === 200) {
+    const reopened = await req("/trips/" + t.data.trip.id);
+    results.push({
+      check: "live response persisted with conversation",
+      passed: reopened.data.messages?.length === 2,
+    });
+  }
+  const places = await req("/trips/" + t.data.trip.id + "/places", "POST", {
+    query: "Kyoto temples",
+  });
+  results.push({
+    check: "live Google Places search",
+    status: places.status,
+    passed: places.status === 200,
+    places: places.data.places?.length || 0,
+    error: places.data.error || null,
+  });
+  await req("/trips/" + t.data.trip.id, "DELETE", { confirm: true });
+} catch (e) {
+  results.push({ check: "smoke execution", passed: false, error: e.message });
+}
+writeFileSync(
+  "evidence/live-local.json",
+  JSON.stringify(
+    {
+      at: new Date().toISOString(),
+      environment: "Local Worker, real external provider calls",
+      results,
+    },
+    null,
+    2,
+  ) + "\n",
+);
+console.log(JSON.stringify(results, null, 2));

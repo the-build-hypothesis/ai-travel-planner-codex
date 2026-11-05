@@ -18,18 +18,18 @@ Open the localhost URL printed by Wrangler. For frontend HMR, also run `npm run 
 
 Runtime bindings:
 
-| Binding | Purpose |
-| --- | --- |
-| `DB` | D1 database |
-| `ASSETS` | Built Vite static assets |
-| `APP_PUBLIC_URL` | Canonical HTTPS origin for email links |
-| `LLM_PROVIDER` | Must be `openai`; unsupported values produce explicit errors |
-| `LLM_MODEL` | Exact model used; no default or fallback |
-| `OPENAI_API_KEY` | Server-only runtime secret |
-| `GOOGLE_MAPS_API_KEY` | Optional server-only Places API credential |
-| `EMAIL` | Cloudflare Email Service send binding |
-| `EMAIL_FROM` | Administrator-managed verified sender |
-| `PRICING_JSON` | Optional model and endpoint pricing, described below |
+| Binding               | Purpose                                                      |
+| --------------------- | ------------------------------------------------------------ |
+| `DB`                  | D1 database                                                  |
+| `ASSETS`              | Built Vite static assets                                     |
+| `APP_PUBLIC_URL`      | Canonical HTTPS origin for email links                       |
+| `LLM_PROVIDER`        | Must be `openai`; unsupported values produce explicit errors |
+| `LLM_MODEL`           | Exact model used; no default or fallback                     |
+| `OPENAI_API_KEY`      | Server-only runtime secret                                   |
+| `GOOGLE_MAPS_API_KEY` | Optional server-only Places API credential                   |
+| `EMAIL`               | Cloudflare Email Service send binding                        |
+| `EMAIL_FROM`          | Administrator-managed verified sender                        |
+| `PRICING_JSON`        | Optional model and endpoint pricing, described below         |
 
 Never commit `.dev.vars` or `cloudflare.env`, retrieve production secrets, or use Wrangler secret-management commands. Deployment uses `keep_vars: true` to retain administrator-managed runtime variables; the assigned canonical URL is the only tracked plain-text runtime variable.
 
@@ -71,8 +71,16 @@ Prices are configurable assumptions, not invoices. Set the optional non-secret `
 
 ```json
 {
-  "your-runtime-model": {"input": 1, "output": 4, "cached": 0.5, "reference": "your-verified-price-and-date"},
-  "google_text_search": {"per1000": 32, "reference": "your-verified-Places-Pro-price-and-date"}
+  "your-runtime-model": {
+    "input": 1,
+    "output": 4,
+    "cached": 0.5,
+    "reference": "your-verified-price-and-date"
+  },
+  "google_text_search": {
+    "per1000": 32,
+    "reference": "your-verified-Places-Pro-price-and-date"
+  }
 }
 ```
 

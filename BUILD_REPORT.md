@@ -1,12 +1,12 @@
 # Build and verification report — Elsewhere
 
-Generated 2026-11-05T17:05:34.804Z. Specification v1.7. All dates/times below are UTC unless noted.
+Generated 2026-11-05T17:17:22.938Z. Specification v1.7. All dates/times below are UTC unless noted.
 
 ## 1. Executive Summary
 
-Application implemented and 30 local mocked-service integration tests passed; production deployment and live integrations pending.
+Working application validated by 31 Worker integration tests, 8 real-browser tests, and live OpenAI/Google checks through the local Worker. First GitHub deployment failed at dependency installation; npm-10-compatible lockfile correction is ready for retry.
 
-Status counts: Verified: 43; Implemented but Unverified: 9; Partial: 1; Not Started: 2. `Verified` in the matrix describes the cited executed check, often a local API test with mocked external services; it does **not** imply production verification. Code presence alone is not treated as evidence of successful execution.
+Status counts: Verified: 46; Implemented but Unverified: 6; Partial: 2; Not Started: 1. `Verified` in the matrix describes the cited executed check, often a local API test with mocked external services; it does **not** imply production verification. Code presence alone is not treated as evidence of successful execution.
 
 ## 2. Requirement-by-Requirement Status
 
@@ -18,9 +18,9 @@ Status counts: Verified: 43; Implemented but Unverified: 9; Partial: 1; Not Star
 | 2.3 | Structured itinerary with practical schedule validation | Verified | Tests reject overlaps, midnight overflow, duplicate IDs and incomplete coordinates. Geographic suitability is model-generated and requires human review. |
 | 2.4.direct | Direct activity add/remove/edit/reorder and optimistic concurrency | Verified | API itinerary edit test preserves unrelated days and rejects stale versions. Browser controls require browser verification. |
 | 2.4.conversational | Conversational modifications preserve unrelated itinerary content | Verified | Single-day scope tests preserve unrelated days; broader change quality depends on model. |
-| 2.5 | Google place research and clearly labeled estimates | Implemented but Unverified | Google Pro endpoint mocked successfully; external details contain names, addresses, coordinates and Maps links; no hours/prices claimed verified. |
-| 2.6 | Interactive map and day-linked locations | Implemented but Unverified | Leaflet/OpenStreetMap implementation; pending browser tile/marker checks. |
-| 2.7 | Polished responsive accessible travel UI | Implemented but Unverified | Production build and strict frontend typecheck passed; pending real-browser visual check. |
+| 2.5 | Google place research and clearly labeled estimates | Verified | Google Pro endpoint mocked successfully; external details contain names, addresses, coordinates and Maps links; no hours/prices claimed verified. evidence/live-local.json: 8 real Places results |
+| 2.6 | Interactive map and day-linked locations | Verified | Leaflet/OpenStreetMap implementation; pending browser tile/marker checks. 8 desktop/mobile browser tests include map marker/popup; evidence/map-desktop.png |
+| 2.7 | Polished responsive accessible travel UI | Verified | Production build and strict frontend typecheck passed; pending real-browser visual check. 8 browser tests; desktop/mobile screenshots; no horizontal overflow |
 | 3.1 | Server-persisted secure guest access | Verified | Guest cookie/persistence and cross-guest tests pass. |
 | 3.2 | Email/password registration and case-insensitive uniqueness | Verified | Registration/migration/duplicate email test; PBKDF2 tests. |
 | 3.3 | Secure login/logout, persistent expiring sessions and rate limits | Verified | Session expiry, login/logout, cookie attributes and limiter tests. |
@@ -54,7 +54,7 @@ Status counts: Verified: 43; Implemented but Unverified: 9; Partial: 1; Not Star
 | 9.1 | Existing Worker, project-prefixed D1 and migrations | Verified | Cloudflare operator provision and remote Wrangler migration succeeded. |
 | 9.2 | Configured transactional email integration | Implemented but Unverified | EMAIL binding declared; no domain configuration altered; actual provider send pending. |
 | 10 | Preserve administrator-managed secrets and LLM configuration | Verified | Worker metadata inspected without secret retrieval; keep_vars true; no secret-management commands used. |
-| 11 | Commit/push and GitHub-triggered Workers Builds deployment | Not Started | Source not pushed at this checkpoint. |
+| 11 | Commit/push and GitHub-triggered Workers Builds deployment | Partial | Source not pushed at this checkpoint. Application and initial reports committed/pushed; first GitHub build failed; corrected lockfile pending retry |
 | 12 | Assigned root URL, custom domain, HTTPS and email URL | Implemented but Unverified | Wrangler custom-domain route and assigned APP_PUBLIC_URL configured; production verification pending. |
 | 13.auth | Passwords, token hashing, ownership and CSRF/security headers | Verified | Security primitives, cross-origin rejection, guest/user/admin separation and token tests passed. |
 | 13.1 | Server-side safeguards for billable API abuse | Verified | IP/account limits, input lengths, bounded output and timeouts implemented; limiter test passed. |
@@ -76,7 +76,7 @@ React 19/Vite builds a responsive browser application; a TypeScript Worker serve
 
 ## 4. How to Access and Test It
 
-Assigned URL: https://ai-travel-planner-v1-codex.thebuildhypothesis.com. Deployment status: **not deployed**.
+Assigned URL: https://ai-travel-planner-v1-codex.thebuildhypothesis.com. Deployment status: **first GitHub build failed; corrected lockfile awaiting push**.
 
 Local setup: `npm ci`, configure ignored `.dev.vars` using the example, `npm run build`, `npm run db:local`, then `npm run dev`. Optional Vite HMR: `npm run dev:ui`. Requires Node 22+ and local socket permissions.
 
@@ -86,26 +86,29 @@ Administrator setup is operator-controlled: after migration run `node scripts/cl
 
 ## 5. Tests and Verification
 
-- **passed** — `npm run typecheck` (local). PROGRESS.md: 2026-11-05T16:58Z
-- **passed** — `npm run build` (local production bundle). PROGRESS.md: Vite 7.3.7 successful build
-- **passed** — `npm test` (workerd/local D1; mocked external services). {"passed":30,"failed":0}. tests/app.test.ts; PROGRESS.md
-- **passed** — `bash -c source cloudflare.env; npx wrangler d1 migrations apply DB --remote` (Cloudflare remote D1). 0001_initial.sql: 24 commands succeeded
-- **passed** — `npm run db:local` (local D1). 0001_initial.sql: 24 commands succeeded
+- **passed** — `npm run typecheck` (local frontend/Worker). PROGRESS.md
+- **passed** — `npm test` (workerd/local D1; mocked external services). {"passed":31,"failed":0}. tests/app.test.ts
+- **passed** — `env LD_LIBRARY_PATH=/tmp/travel-browser-libs/root/usr/lib/x86_64-linux-gnu npx playwright test` (local Worker, real Chromium desktop/mobile). {"passed":8,"failed":0}. evidence/discover-desktop.png; evidence/itinerary-mobile.png; evidence/map-desktop.png
+- **passed** — `node scripts/live-local.mjs` (local Worker, real OpenAI and Google). {"passed":3,"failed":0}. evidence/live-local.json
+- **passed** — `npx --yes npm@10.9.2 ci --ignore-scripts --no-audit --no-fund --dry-run` (Cloudflare-matching npm 10.9.2). Missing peer entry repaired by regenerating lockfile
+- **passed** — `npm run build` (Vite production bundle). PROGRESS.md
+- **passed** — `npx wrangler d1 migrations apply DB --remote` (Cloudflare D1). 0001_initial.sql: 24 commands succeeded
+- **failed** — `GitHub push-event build f153f96177827c3dc7f2accafe49d3af83304ad8` (Cloudflare Workers Builds). evidence/latest-build-log.json: npm ci missing @cloudflare/workers-types@4 optional peer
 
-Mocked tests use actual workerd/local D1, but mocked OpenAI/Google/email responses. They validate application logic rather than upstream credentials or delivery. Real-browser, live API and production checks are pending at this checkpoint.
+Mocked tests use actual workerd/local D1, but mocked OpenAI/Google/email responses. They validate application logic rather than upstream credentials or delivery. Browser verification initially required three missing libraries to be downloaded/extracted under /tmp after system install failed due unavailable sudo. All 8 cases then passed. A subsequent development rebuild loop was diagnosed and fixed by making build-info generation idempotent; browser suite passed again.
 
 ## 6. Deployment and Infrastructure
 
 Observed Git branch: `null`. Observed HEAD: `null` (the report itself will be committed afterward). Worker: `ai-travel-planner-codex`, preserved existing primary Worker. D1: `bh-travel-v1-claude-codex-db` (`9412d31e-a976-473d-8260-a20d6c20ce1e`). Migration `0001_initial.sql` applied locally and remotely. Static assets, DB, EMAIL and canonical URL are declared in Wrangler. Managed LLM settings and secret values were not changed.
 
-Deployment verification: {"status":"not deployed","publicUrl":"https://ai-travel-planner-v1-codex.thebuildhypothesis.com","githubBuildsVerification":"pending","deployedCommitSha":null}. No deployment success is claimed at this checkpoint. GitHub Builds list initially returned no builds.
+Deployment verification: {"status":"first GitHub build failed; corrected lockfile awaiting push","publicUrl":"https://ai-travel-planner-v1-codex.thebuildhypothesis.com","githubBuildsVerification":"failed: npm ci missing optional peer in initial npm-11 lockfile; repaired using npm 10.9.2","deployedCommitSha":null}. No deployment success is claimed at this checkpoint. GitHub Builds list initially returned no builds.
 
 ## 7. Integrations and Configuration
 
-- llm: {"provider":"openai","model":"gpt-4o-mini","status":"mocked integration verified; live call pending"}
-- googlePlaces: {"status":"mocked request/SKU accounting verified; live call pending"}
-- maps: {"status":"implemented, browser verification pending"}
-- cloudflareEmail: {"binding":"EMAIL","senderVariable":"EMAIL_FROM","status":"mocked token/delivery workflows verified; live delivery pending"}
+- llm: {"provider":"openai","model":"gpt-4o-mini","status":"live local integration passed; production pending"}
+- googlePlaces: {"status":"live local integration passed: 8 results"}
+- maps: {"status":"browser marker/popup verified on desktop and mobile"}
+- cloudflareEmail: {"binding":"EMAIL","senderVariable":"EMAIL_FROM","status":"mocked delivery/token tests passed; production pending"}
 
 The runtime provider/model were verified from non-secret Worker metadata; credentials were not retrieved. Production provider availability is distinct from metadata presence. `keep_vars: true` preserves managed settings. The assigned canonical URL corrects a pre-existing mismatched experiment URL; no unrelated domain/DNS changes are planned. Published reference price assumptions are stored in `pricing.json` and runtime `PRICING_JSON`; model selection still comes exclusively from `LLM_MODEL`.
 
@@ -125,14 +128,15 @@ Cost evidence: {"currency":"USD","buildRunMeasuredAmount":null,"providerInvoiceA
 
 ## 10. Known Bugs, Limitations, and Incomplete Work
 
-- **medium**: Live service and deployment verification pending at this checkpoint. Impact: Production operation not yet demonstrated. Follow-up/workaround: Complete live API, browser, deployment and build verification.
-- **low**: No authoritative billing reconciliation, live opening hours, availability or routing. Impact: Travel and cost values remain clearly labeled estimates. Follow-up/workaround: Verify travel details with operators; reconcile provider invoices separately.
+- **medium**: First GitHub deployment failed during npm ci; corrected compatible lockfile ready. Impact: Production still serves the original placeholder. Follow-up/workaround: Push and verify new GitHub-triggered build.
+- **medium**: Real transactional inbox delivery not verified. Impact: Account verification/recovery require actual email receipt. Follow-up/workaround: Verify production binding and delivery to a controlled inbox.
+- **low**: No live opening hours/availability, routed directions or authoritative billing reconciliation. Impact: Travel and cost values require independent verification. Follow-up/workaround: Use direct venue/provider checks.
 
 Additional bounded limitations: English UI; last 100 user trips in collection; last 16 messages plus itinerary used for model context; chart buckets are UTC days even for the last-hour range; map lines show sequence rather than routed travel; decorative stock imagery may not match saved destination; no bookings/availability/hours guarantees. No automatic billable retries. Broader conversational changes depend on model preservation instructions; explicit single-day changes are enforced on the server.
 
 ## 11. Agent Execution Summary
 
-Observed start: 2026-11-05T16:36:10Z. End: not yet ended. Measured seconds at generation: 1765; delivery limit 28,800 seconds. Implementation checkpoint; validation and deployment in progress.
+Observed start: 2026-11-05T16:36:10Z. End: not yet ended. Measured seconds at generation: 2473; delivery limit 28,800 seconds. Implementation checkpoint; validation and deployment in progress.
 
 Milestones, actual failures and approvals: see PROGRESS.md. The initial empty repository was built from scratch; a nonexistent pinned Workers-types version was corrected and installed versions locked. Sandbox network/socket restrictions required approved retries for dependency downloads, Cloudflare operations and workerd tests. Tool approvals were human interventions; no user product decision was needed. No other agents were spawned. 
 

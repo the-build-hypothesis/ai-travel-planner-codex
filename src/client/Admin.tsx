@@ -1,26 +1,997 @@
-import {useEffect,useState} from 'react';import {api,money as budgetMoney,date} from './api';import {Compass,ShieldCheck,LogOut,Users,Map,BarChart3,Activity,FileText,KeyRound,Search,ArrowLeft,ChevronLeft,ChevronRight,LoaderCircle,Plus,Trash2,X} from 'lucide-react';
-const money=(n:number|null|undefined,currency="USD")=>n==null?"Unknown":new Intl.NumberFormat("en-US",{style:"currency",currency,minimumFractionDigits:2,maximumFractionDigits:6}).format(n);
-const presets=[['Last hour',3600000],['Last day',86400000],['Last 3 days',3*86400000],['Last 7 days',7*86400000],['Last 30 days',30*86400000],['Last 90 days',90*86400000],['Last year',365*86400000]] as const;
-export default function Admin(){const [admin,setAdmin]=useState<any>(null),[ready,setReady]=useState(false),[error,setError]=useState(''),[busy,setBusy]=useState(false),[tab,setTab]=useState('overview'),[period,setPeriod]=useState('Last 30 days'),[start,setStart]=useState(new Date(Date.now()-30*86400000).toISOString().slice(0,16)),[end,setEnd]=useState(new Date().toISOString().slice(0,16)),[data,setData]=useState<any>(null),[overview,setOverview]=useState<any>(null),[page,setPage]=useState(1),[q,setQ]=useState(''),[search,setSearch]=useState(''),[user,setUser]=useState<any>(null),[trip,setTrip]=useState<any>(null),[inspect,setInspect]=useState<any>(null),[sort,setSort]=useState('created'),[notice,setNotice]=useState('');
- useEffect(()=>{api('/admin/session').then(r=>setAdmin(r.admin)).catch(()=>{}).finally(()=>setReady(true))},[]);
- const range=()=>{if(period==='Custom')return {start:new Date(start+'Z').toISOString(),end:new Date(end+'Z').toISOString()};const duration=presets.find(p=>p[0]===period)?.[1]||30*86400000;return {start:new Date(Date.now()-duration).toISOString(),end:new Date().toISOString()}};
- const load=async()=>{if(!admin||admin.must_change||tab==='password')return;setBusy(true);setError('');try{const r=range();const qs=new URLSearchParams({...r,page:String(page),q:search,sort});if(user)qs.set('user',user.id);if(trip)qs.set('trip',trip.id);const o=await api('/admin/overview?'+qs);setOverview(o);setData(tab==='overview'?o:await api('/admin/'+tab+'?'+qs))}catch(e){setError((e as Error).message)}finally{setBusy(false)}};
- useEffect(()=>{setData(null);load()},[admin,tab,period,start,end,page,search,user,trip,sort]);
- async function action(fn:()=>Promise<any>){setBusy(true);setError('');try{await fn();await load()}catch(e){setError((e as Error).message)}finally{setBusy(false)}}
- function nav(s:string){setTab(s);setPage(1);setUser(null);setTrip(null);setInspect(null);setSearch('');setQ('')}
- if(!ready)return <div className="loading-page"><LoaderCircle className="spin"/>Loading administration…</div>;
- if(!admin)return <div className="admin-login"><a className="brand" href="/"><span className="brand-symbol"><Compass size={25}/></span>elsewhere.</a><div className="admin-login-card"><ShieldCheck size={30}/><div className="eyebrow">ADMINISTRATOR ACCESS</div><h1>Behind the journeys.</h1><p className="muted">Sign in to manage your travel community.</p><form onSubmit={async e=>{e.preventDefault();setBusy(true);setError('');try{const f=Object.fromEntries(new FormData(e.currentTarget));setAdmin((await api('/admin/login','POST',f)).admin)}catch(e){setError((e as Error).message)}finally{setBusy(false)}}}><label>Username<input name="username" autoComplete="username" required/></label><label>Password<input name="password" type="password" autoComplete="current-password" required/></label>{error&&<p className="form-error" role="alert">{error}</p>}<button className="primary full" disabled={busy}>Sign in securely</button></form><a href="/" className="back-link"><ArrowLeft size={14}/>Back to Elsewhere</a></div></div>;
- function PasswordForm(){return <form className="admin-form" onSubmit={e=>{e.preventDefault();const form=e.currentTarget;const f=Object.fromEntries(new FormData(form));action(async()=>{await api('/admin/password','POST',f);setAdmin({...admin,must_change:0});setNotice('Password updated');form.reset()})}}><h2>{admin.must_change?'Secure your administrator account.':'Change your password'}</h2><p className="muted">{admin.must_change?'Replace the initial password before accessing any administrative data.':'Other administrator sessions will be invalidated.'}</p><label>Current password<input name="currentPassword" type="password" autoComplete="current-password" required/></label><label>New password<input name="password" type="password" autoComplete="new-password" required minLength={12} maxLength={128}/></label><button className="primary" disabled={busy}>Update password</button></form>}
- const cols=tab==='users'?['email','created_at','verified','disabled','trips','llm_cost','places_cost','combined_cost']:tab==='trips'?['title','email','created_at','updated_at','days','llm_cost','places_cost','combined_cost']:tab==='usage'?['timestamp','provider','model','operation','status','input_tokens','output_tokens','units','cost','duration_ms']:tab==='admins'?['username','created_at','disabled','must_change']:['timestamp','actor','action','target','outcome'];
- return <div className="admin-app"><aside className="admin-sidebar"><a className="brand" href="/"><span className="brand-symbol"><Compass size={23}/></span>elsewhere.</a><div className="admin-badge"><ShieldCheck size={14}/>ADMINISTRATION</div><nav>{[{id:'overview',label:'Overview',icon:BarChart3},{id:'users',label:'Travelers',icon:Users},{id:'trips',label:'All journeys',icon:Map},{id:'usage',label:'Usage & costs',icon:Activity},{id:'admins',label:'Administrators',icon:ShieldCheck},{id:'audit',label:'Audit trail',icon:FileText},{id:'password',label:'Security',icon:KeyRound}].map(({id,label,icon:Icon})=><button key={id} disabled={!!admin.must_change} className={tab===id?'active':''} onClick={()=>nav(id)}><Icon size={18}/>{label}</button>)}</nav><div className="admin-sidebar-bottom"><strong>{admin.username}</strong><button className="text-link" onClick={()=>action(async()=>{await api('/admin/logout','POST',{});setAdmin(null)})}><LogOut size={16}/>Log out</button></div></aside><main className="admin-main"><header className="admin-top"><span className="eyebrow">ELSEWHERE / OPERATIONS</span><a href="/">View application ↗</a></header>{error&&<div className="error-banner" role="alert">{error}<button className="icon" onClick={()=>setError('')}><X size={16}/></button></div>}{notice&&<p className="success-message">{notice}</p>}{admin.must_change?<PasswordForm/>:<><div className="section-heading"><div><div className="eyebrow">THE BIG PICTURE</div><h1>{tab==='overview'?'Every journey, accounted for.':tab==='users'?'Your travel community.':tab==='trips'?'A world of journeys.':tab==='usage'?'Usage & estimated costs.':tab==='admins'?'The people behind the plans.':tab==='audit'?'A clear record.':'Account security.'}</h1><p className="muted">Reporting in UTC · Costs are application estimates, not invoices.</p></div><button className="outline" onClick={load} disabled={busy}>{busy?<LoaderCircle className="spin" size={17}/>:'Refresh'}</button></div>{tab!=='password'&&<div className="report-filters"><label>Reporting period<select value={period} onChange={e=>{setPeriod(e.target.value);setPage(1)}}>{presets.map(([label])=><option key={label}>{label}</option>)}<option>Custom</option></select></label>{period==='Custom'&&<><label>Start (UTC)<input type="datetime-local" required value={start} onChange={e=>setStart(e.target.value)}/></label><label>End (UTC)<input type="datetime-local" required value={end} onChange={e=>setEnd(e.target.value)}/></label></>}<span className="period-note">Applied to usage, costs, charts and period counts.<br/>Lifetime totals are labeled separately.</span></div>}
- {tab==='password'?<PasswordForm/>:tab==='overview'&&overview?<><div className="metric-grid">{[{label:'Travelers · lifetime',v:overview.totals.users,sub:`${overview.period.users} new in period`},{label:'Journeys · lifetime',v:overview.totals.trips,sub:`${overview.period.trips} created in period`},{label:'LLM cost · period',v:money(overview.costs.llm),sub:'Provider-reported token usage'},{label:'Places cost · period',v:money(overview.costs.places),sub:'Endpoint-specific estimates'},{label:'Combined cost · period',v:money(overview.costs.total),sub:`${overview.costs.unknown_costs||0} requests with unknown cost`},{label:'API requests · period',v:overview.costs.requests,sub:`${overview.costs.failures||0} failed · ${Math.round(overview.costs.latency||0)} ms avg`}].map(m=><div className="metric" key={m.label}><span>{m.label}</span><strong>{m.v}</strong><small>{m.sub}</small></div>)}</div><div className="chart-grid"><Chart title="API cost over time · USD estimate" rows={overview.series} value="cost"/><Chart title="Journeys created" rows={overview.activity} value="trips"/><Chart title="New travelers" rows={overview.activity} value="users"/><Chart title="LLM tokens" rows={overview.series} value="tokens"/><Chart title="Google Places requests" rows={overview.series} value="places"/></div><div className="admin-card"><h3>Integration status</h3><div className="integration-status"><p>LLM provider <strong>{overview.configuration.provider||'Not configured'}</strong></p><p>Runtime model <strong>{overview.configuration.model||'Not configured'}</strong></p><p>Email binding <strong>{overview.configuration.email?'Available':'Missing configuration'}</strong></p><p>Google Places <strong>{overview.configuration.places?'Key configured':'Missing configuration'}</strong></p><p>Pricing <strong>{overview.configuration.pricingConfigured?'Configured — inspect usage snapshots':'Unconfigured — costs unknown'}</strong></p></div><p className="fine-print">Binding presence does not prove successful external delivery. Unattributed requests: {overview.costs.unattributed_requests||0}; known unattributed cost: {money(overview.costs.unattributed_cost)}. Unknown costs are excluded from sums.</p></div><div className="admin-card"><h3>Recent application errors</h3>{overview.errors.length?overview.errors.map((e:any)=><p key={e.id}>{e.timestamp} · {e.category} · {e.code}</p>):<p className="muted">No recorded application errors in this reporting period.</p>}</div></>:<>
- {user&&<div className="detail-banner"><div><strong>{user.email}</strong><p>Registered {date(user.created_at)} · {user.verified?'Verified':'Unverified'} · {user.disabled?'Disabled':'Active'} · {user.trips} lifetime trips</p></div><button className="outline" onClick={()=>{setTab(tab==='trips'?'usage':'trips');setPage(1)}}>{tab==='trips'?'Usage history':'Trip history'}</button><button className="icon" onClick={()=>{setUser(null);setPage(1)}} aria-label="Clear user filter"><X size={17}/></button></div>}
- {trip&&<div className="detail-banner"><strong>Usage for {trip.title}</strong><button className="icon" onClick={()=>setTrip(null)}><X size={17}/></button></div>}
- {['users','trips'].includes(tab)&&<form className="table-search" onSubmit={e=>{e.preventDefault();setSearch(q);setPage(1)}}><Search size={18}/><input value={q} onChange={e=>setQ(e.target.value)} placeholder={tab==='users'?'Search email addresses':'Search journeys or destinations'}/><button className="outline">Search</button>{tab==='users'&&<select aria-label="Sort users" value={sort} onChange={e=>setSort(e.target.value)}><option value="created">Newest first</option><option value="email">Email A–Z</option><option value="cost">Highest cost</option></select>}</form>}
- {tab==='admins'&&<form className="admin-create" onSubmit={e=>{e.preventDefault();const form=e.currentTarget;const f=Object.fromEntries(new FormData(form));action(async()=>{await api('/admin/admins','POST',f);form.reset()})}}><label>New administrator username<input name="username" required pattern="[-a-zA-Z0-9_]{3,50}"/></label><label>Temporary password<input name="password" type="password" required minLength={12} autoComplete="new-password"/></label><button className="primary" disabled={busy}><Plus size={16}/>Add administrator</button><p className="fine-print">New administrators must change their temporary passwords before accessing data.</p></form>}
- <div className="table-wrap"><table><thead><tr>{cols.map(c=><th key={c}>{c.replaceAll('_',' ')}</th>)}{['users','trips','admins','usage'].includes(tab)&&<th>Actions / details</th>}</tr></thead><tbody>{data?.rows?.map((row:any)=><tr key={row.id}>{cols.map(c=><td key={c}>{c.includes('cost')?money(row[c]):['verified','disabled','must_change'].includes(c)?row[c]?'Yes':'No':row[c]??'—'}</td>)}{tab==='users'&&<td className="table-actions"><button onClick={()=>{setUser(row);setTab('trips');setPage(1)}}>Inspect</button><button disabled={busy} onClick={()=>{if(confirm(`${row.disabled?'Enable':'Disable'} ${row.email}?`))action(()=>api('/admin/users/'+row.id,'PATCH',{disabled:!row.disabled,confirm:true}))}}>{row.disabled?'Enable':'Disable'}</button><button className="danger-link" disabled={busy} onClick={()=>{if(confirm(`Permanently delete ${row.email}, all their trips and conversations? Historical usage is retained without user attribution.`))action(()=>api('/admin/users/'+row.id,'DELETE',{confirm:true}))}}>Delete</button></td>}{tab==='trips'&&<td className="table-actions"><button onClick={()=>action(async()=>setInspect(await api('/admin/trips/'+row.id)))}>Inspect</button><button onClick={()=>{setTrip(row);setTab('usage');setPage(1)}}>Usage</button></td>}{tab==='admins'&&<td className="table-actions"><button disabled={busy} onClick={()=>{const password=prompt('Enter a new temporary password (12+ characters). The administrator must replace it on next login.');if(password)action(()=>api('/admin/admins/'+row.id,'PATCH',{password,confirm:true}))}}>Reset password</button><button disabled={busy} onClick={()=>{if(confirm(`${row.disabled?'Enable':'Disable'} administrator ${row.username}?`))action(()=>api('/admin/admins/'+row.id,'PATCH',{disabled:!row.disabled,confirm:true}))}}>{row.disabled?'Enable':'Disable'}</button><button className="danger-link" disabled={busy} onClick={()=>{if(confirm('Delete administrator '+row.username+'?'))action(()=>api('/admin/admins/'+row.id,'DELETE',{confirm:true}))}}>Delete</button></td>}{tab==='usage'&&<td><details><summary>Attribution & pricing</summary><pre>{JSON.stringify({user:row.user_id,guest:row.guest_id,trip:row.trip_id,cached_tokens:row.cached_tokens,pricing:JSON.parse(row.pricing),currency:row.currency,error:row.error},null,2)}</pre></details></td>}</tr>)}</tbody></table>{!data?.rows?.length&&<p className="table-empty">{busy?'Loading records…':'No records match these filters.'}</p>}</div>{tab!=='admins'&&<div className="pagination"><button className="outline" disabled={page===1||busy} onClick={()=>setPage(page-1)}><ChevronLeft size={16}/>Previous</button><span>Page {page} · 25 records per page</span><button className="outline" disabled={!data?.rows||data.rows.length<25||busy} onClick={()=>setPage(page+1)}>Next<ChevronRight size={16}/></button></div>}
- </>}
- {inspect&&<div className="modal-backdrop"><div className="modal inspection" role="dialog" aria-modal="true" aria-label="Trip inspection"><button className="icon close" onClick={()=>setInspect(null)}><X size={19}/></button><h2>{inspect.trip.title}</h2><p className="muted">Created {inspect.trip.created_at}<br/>Updated {inspect.trip.updated_at}</p><details><summary>Preferences</summary><pre>{JSON.stringify(inspect.trip.preferences,null,2)}</pre></details>{inspect.trip.itinerary.map((d:any,i:number)=><div className="admin-inspect-day" key={d.id}><h3>Day {i+1} · {d.title}</h3><p>{d.summary}</p>{d.activities.map((a:any)=><p key={a.id}><strong>{a.time} {a.title}</strong> · {a.duration} min · {a.location}<br/>{a.description}<br/>{money(a.cost,inspect.trip.preferences.currency)} estimate · {a.transport}</p>)}</div>)}<h3>Conversation</h3>{inspect.messages.map((m:any)=><p key={m.id}><strong>{m.role}</strong>: {m.content}</p>)}</div></div>}
- </>}</main></div>
+import { useEffect, useState } from "react";
+import { api, money as budgetMoney, date } from "./api";
+import {
+  Compass,
+  ShieldCheck,
+  LogOut,
+  Users,
+  Map,
+  BarChart3,
+  Activity,
+  FileText,
+  KeyRound,
+  Search,
+  ArrowLeft,
+  ChevronLeft,
+  ChevronRight,
+  LoaderCircle,
+  Plus,
+  Trash2,
+  X,
+} from "lucide-react";
+const money = (n: number | null | undefined, currency = "USD") =>
+  n == null
+    ? "Unknown"
+    : new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency,
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 6,
+      }).format(n);
+const presets = [
+  ["Last hour", 3600000],
+  ["Last day", 86400000],
+  ["Last 3 days", 3 * 86400000],
+  ["Last 7 days", 7 * 86400000],
+  ["Last 30 days", 30 * 86400000],
+  ["Last 90 days", 90 * 86400000],
+  ["Last year", 365 * 86400000],
+] as const;
+export default function Admin() {
+  const [admin, setAdmin] = useState<any>(null),
+    [ready, setReady] = useState(false),
+    [error, setError] = useState(""),
+    [busy, setBusy] = useState(false),
+    [tab, setTab] = useState("overview"),
+    [period, setPeriod] = useState("Last 30 days"),
+    [start, setStart] = useState(
+      new Date(Date.now() - 30 * 86400000).toISOString().slice(0, 16),
+    ),
+    [end, setEnd] = useState(new Date().toISOString().slice(0, 16)),
+    [data, setData] = useState<any>(null),
+    [overview, setOverview] = useState<any>(null),
+    [page, setPage] = useState(1),
+    [q, setQ] = useState(""),
+    [search, setSearch] = useState(""),
+    [user, setUser] = useState<any>(null),
+    [trip, setTrip] = useState<any>(null),
+    [inspect, setInspect] = useState<any>(null),
+    [sort, setSort] = useState("created"),
+    [notice, setNotice] = useState("");
+  useEffect(() => {
+    api("/admin/session")
+      .then((r) => setAdmin(r.admin))
+      .catch(() => {})
+      .finally(() => setReady(true));
+  }, []);
+  const range = () => {
+    if (period === "Custom")
+      return {
+        start: new Date(start + "Z").toISOString(),
+        end: new Date(end + "Z").toISOString(),
+      };
+    const duration = presets.find((p) => p[0] === period)?.[1] || 30 * 86400000;
+    return {
+      start: new Date(Date.now() - duration).toISOString(),
+      end: new Date().toISOString(),
+    };
+  };
+  const load = async () => {
+    if (!admin || admin.must_change || tab === "password") return;
+    setBusy(true);
+    setError("");
+    try {
+      const r = range();
+      const qs = new URLSearchParams({
+        ...r,
+        page: String(page),
+        q: search,
+        sort,
+      });
+      if (user) qs.set("user", user.id);
+      if (trip) qs.set("trip", trip.id);
+      const o = await api("/admin/overview?" + qs);
+      setOverview(o);
+      setData(tab === "overview" ? o : await api("/admin/" + tab + "?" + qs));
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  };
+  useEffect(() => {
+    setData(null);
+    load();
+  }, [admin, tab, period, start, end, page, search, user, trip, sort]);
+  async function action(fn: () => Promise<any>) {
+    setBusy(true);
+    setError("");
+    try {
+      await fn();
+      await load();
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  }
+  function nav(s: string) {
+    setTab(s);
+    setPage(1);
+    setUser(null);
+    setTrip(null);
+    setInspect(null);
+    setSearch("");
+    setQ("");
+  }
+  if (!ready)
+    return (
+      <div className="loading-page">
+        <LoaderCircle className="spin" />
+        Loading administration…
+      </div>
+    );
+  if (!admin)
+    return (
+      <div className="admin-login">
+        <a className="brand" href="/">
+          <span className="brand-symbol">
+            <Compass size={25} />
+          </span>
+          elsewhere.
+        </a>
+        <div className="admin-login-card">
+          <ShieldCheck size={30} />
+          <div className="eyebrow">ADMINISTRATOR ACCESS</div>
+          <h1>Behind the journeys.</h1>
+          <p className="muted">Sign in to manage your travel community.</p>
+          <form
+            onSubmit={async (e) => {
+              e.preventDefault();
+              setBusy(true);
+              setError("");
+              try {
+                const f = Object.fromEntries(new FormData(e.currentTarget));
+                setAdmin((await api("/admin/login", "POST", f)).admin);
+              } catch (e) {
+                setError((e as Error).message);
+              } finally {
+                setBusy(false);
+              }
+            }}
+          >
+            <label>
+              Username
+              <input name="username" autoComplete="username" required />
+            </label>
+            <label>
+              Password
+              <input
+                name="password"
+                type="password"
+                autoComplete="current-password"
+                required
+              />
+            </label>
+            {error && (
+              <p className="form-error" role="alert">
+                {error}
+              </p>
+            )}
+            <button className="primary full" disabled={busy}>
+              Sign in securely
+            </button>
+          </form>
+          <a href="/" className="back-link">
+            <ArrowLeft size={14} />
+            Back to Elsewhere
+          </a>
+        </div>
+      </div>
+    );
+  function PasswordForm() {
+    return (
+      <form
+        className="admin-form"
+        onSubmit={(e) => {
+          e.preventDefault();
+          const form = e.currentTarget;
+          const f = Object.fromEntries(new FormData(form));
+          action(async () => {
+            await api("/admin/password", "POST", f);
+            setAdmin({ ...admin, must_change: 0 });
+            setNotice("Password updated");
+            form.reset();
+          });
+        }}
+      >
+        <h2>
+          {admin.must_change
+            ? "Secure your administrator account."
+            : "Change your password"}
+        </h2>
+        <p className="muted">
+          {admin.must_change
+            ? "Replace the initial password before accessing any administrative data."
+            : "Other administrator sessions will be invalidated."}
+        </p>
+        <label>
+          Current password
+          <input
+            name="currentPassword"
+            type="password"
+            autoComplete="current-password"
+            required
+          />
+        </label>
+        <label>
+          New password
+          <input
+            name="password"
+            type="password"
+            autoComplete="new-password"
+            required
+            minLength={12}
+            maxLength={128}
+          />
+        </label>
+        <button className="primary" disabled={busy}>
+          Update password
+        </button>
+      </form>
+    );
+  }
+  const cols =
+    tab === "users"
+      ? [
+          "email",
+          "created_at",
+          "verified",
+          "disabled",
+          "trips",
+          "llm_cost",
+          "places_cost",
+          "combined_cost",
+        ]
+      : tab === "trips"
+        ? [
+            "title",
+            "email",
+            "created_at",
+            "updated_at",
+            "days",
+            "llm_cost",
+            "places_cost",
+            "combined_cost",
+          ]
+        : tab === "usage"
+          ? [
+              "timestamp",
+              "provider",
+              "model",
+              "operation",
+              "status",
+              "input_tokens",
+              "output_tokens",
+              "units",
+              "cost",
+              "duration_ms",
+            ]
+          : tab === "admins"
+            ? ["username", "created_at", "disabled", "must_change"]
+            : ["timestamp", "actor", "action", "target", "outcome"];
+  return (
+    <div className="admin-app">
+      <aside className="admin-sidebar">
+        <a className="brand" href="/">
+          <span className="brand-symbol">
+            <Compass size={23} />
+          </span>
+          elsewhere.
+        </a>
+        <div className="admin-badge">
+          <ShieldCheck size={14} />
+          ADMINISTRATION
+        </div>
+        <nav>
+          {[
+            { id: "overview", label: "Overview", icon: BarChart3 },
+            { id: "users", label: "Travelers", icon: Users },
+            { id: "trips", label: "All journeys", icon: Map },
+            { id: "usage", label: "Usage & costs", icon: Activity },
+            { id: "admins", label: "Administrators", icon: ShieldCheck },
+            { id: "audit", label: "Audit trail", icon: FileText },
+            { id: "password", label: "Security", icon: KeyRound },
+          ].map(({ id, label, icon: Icon }) => (
+            <button
+              key={id}
+              disabled={!!admin.must_change}
+              className={tab === id ? "active" : ""}
+              onClick={() => nav(id)}
+            >
+              <Icon size={18} />
+              {label}
+            </button>
+          ))}
+        </nav>
+        <div className="admin-sidebar-bottom">
+          <strong>{admin.username}</strong>
+          <button
+            className="text-link"
+            onClick={() =>
+              action(async () => {
+                await api("/admin/logout", "POST", {});
+                setAdmin(null);
+              })
+            }
+          >
+            <LogOut size={16} />
+            Log out
+          </button>
+        </div>
+      </aside>
+      <main className="admin-main">
+        <header className="admin-top">
+          <span className="eyebrow">ELSEWHERE / OPERATIONS</span>
+          <a href="/">View application ↗</a>
+        </header>
+        {error && (
+          <div className="error-banner" role="alert">
+            {error}
+            <button className="icon" onClick={() => setError("")}>
+              <X size={16} />
+            </button>
+          </div>
+        )}
+        {notice && <p className="success-message">{notice}</p>}
+        {admin.must_change ? (
+          <PasswordForm />
+        ) : (
+          <>
+            <div className="section-heading">
+              <div>
+                <div className="eyebrow">THE BIG PICTURE</div>
+                <h1>
+                  {tab === "overview"
+                    ? "Every journey, accounted for."
+                    : tab === "users"
+                      ? "Your travel community."
+                      : tab === "trips"
+                        ? "A world of journeys."
+                        : tab === "usage"
+                          ? "Usage & estimated costs."
+                          : tab === "admins"
+                            ? "The people behind the plans."
+                            : tab === "audit"
+                              ? "A clear record."
+                              : "Account security."}
+                </h1>
+                <p className="muted">
+                  Reporting in UTC · Costs are application estimates, not
+                  invoices.
+                </p>
+              </div>
+              <button className="outline" onClick={load} disabled={busy}>
+                {busy ? <LoaderCircle className="spin" size={17} /> : "Refresh"}
+              </button>
+            </div>
+            {tab !== "password" && (
+              <div className="report-filters">
+                <label>
+                  Reporting period
+                  <select
+                    value={period}
+                    onChange={(e) => {
+                      setPeriod(e.target.value);
+                      setPage(1);
+                    }}
+                  >
+                    {presets.map(([label]) => (
+                      <option key={label}>{label}</option>
+                    ))}
+                    <option>Custom</option>
+                  </select>
+                </label>
+                {period === "Custom" && (
+                  <>
+                    <label>
+                      Start (UTC)
+                      <input
+                        type="datetime-local"
+                        required
+                        value={start}
+                        onChange={(e) => setStart(e.target.value)}
+                      />
+                    </label>
+                    <label>
+                      End (UTC)
+                      <input
+                        type="datetime-local"
+                        required
+                        value={end}
+                        onChange={(e) => setEnd(e.target.value)}
+                      />
+                    </label>
+                  </>
+                )}
+                <span className="period-note">
+                  Applied to usage, costs, charts and period counts.
+                  <br />
+                  Lifetime totals are labeled separately.
+                </span>
+              </div>
+            )}
+            {tab === "password" ? (
+              <PasswordForm />
+            ) : tab === "overview" && overview ? (
+              <>
+                <div className="metric-grid">
+                  {[
+                    {
+                      label: "Travelers · lifetime",
+                      v: overview.totals.users,
+                      sub: `${overview.period.users} new in period`,
+                    },
+                    {
+                      label: "Journeys · lifetime",
+                      v: overview.totals.trips,
+                      sub: `${overview.period.trips} created in period`,
+                    },
+                    {
+                      label: "LLM cost · period",
+                      v: money(overview.costs.llm),
+                      sub: "Provider-reported token usage",
+                    },
+                    {
+                      label: "Places cost · period",
+                      v: money(overview.costs.places),
+                      sub: "Endpoint-specific estimates",
+                    },
+                    {
+                      label: "Combined cost · period",
+                      v: money(overview.costs.total),
+                      sub: `${overview.costs.unknown_costs || 0} requests with unknown cost`,
+                    },
+                    {
+                      label: "API requests · period",
+                      v: overview.costs.requests,
+                      sub: `${overview.costs.failures || 0} failed · ${Math.round(overview.costs.latency || 0)} ms avg`,
+                    },
+                  ].map((m) => (
+                    <div className="metric" key={m.label}>
+                      <span>{m.label}</span>
+                      <strong>{m.v}</strong>
+                      <small>{m.sub}</small>
+                    </div>
+                  ))}
+                </div>
+                <div className="chart-grid">
+                  <Chart
+                    title="API cost over time · USD estimate"
+                    rows={overview.series}
+                    value="cost"
+                  />
+                  <Chart
+                    title="Journeys created"
+                    rows={overview.activity}
+                    value="trips"
+                  />
+                  <Chart
+                    title="New travelers"
+                    rows={overview.activity}
+                    value="users"
+                  />
+                  <Chart
+                    title="LLM tokens"
+                    rows={overview.series}
+                    value="tokens"
+                  />
+                  <Chart
+                    title="Google Places requests"
+                    rows={overview.series}
+                    value="places"
+                  />
+                </div>
+                <div className="admin-card">
+                  <h3>Integration status</h3>
+                  <div className="integration-status">
+                    <p>
+                      LLM provider{" "}
+                      <strong>
+                        {overview.configuration.provider || "Not configured"}
+                      </strong>
+                    </p>
+                    <p>
+                      Runtime model{" "}
+                      <strong>
+                        {overview.configuration.model || "Not configured"}
+                      </strong>
+                    </p>
+                    <p>
+                      Email binding{" "}
+                      <strong>
+                        {overview.configuration.email
+                          ? "Available"
+                          : "Missing configuration"}
+                      </strong>
+                    </p>
+                    <p>
+                      Google Places{" "}
+                      <strong>
+                        {overview.configuration.places
+                          ? "Key configured"
+                          : "Missing configuration"}
+                      </strong>
+                    </p>
+                    <p>
+                      Pricing{" "}
+                      <strong>
+                        {overview.configuration.pricingConfigured
+                          ? "Configured — inspect usage snapshots"
+                          : "Unconfigured — costs unknown"}
+                      </strong>
+                    </p>
+                  </div>
+                  <p className="fine-print">
+                    Binding presence does not prove successful external
+                    delivery. Unattributed requests:{" "}
+                    {overview.costs.unattributed_requests || 0}; known
+                    unattributed cost: {money(overview.costs.unattributed_cost)}
+                    . Unknown costs are excluded from sums.
+                  </p>
+                </div>
+                <div className="admin-card">
+                  <h3>Recent application errors</h3>
+                  {overview.errors.length ? (
+                    overview.errors.map((e: any) => (
+                      <p key={e.id}>
+                        {e.timestamp} · {e.category} · {e.code}
+                      </p>
+                    ))
+                  ) : (
+                    <p className="muted">
+                      No recorded application errors in this reporting period.
+                    </p>
+                  )}
+                </div>
+              </>
+            ) : (
+              <>
+                {user && (
+                  <div className="detail-banner">
+                    <div>
+                      <strong>{user.email}</strong>
+                      <p>
+                        Registered {date(user.created_at)} ·{" "}
+                        {user.verified ? "Verified" : "Unverified"} ·{" "}
+                        {user.disabled ? "Disabled" : "Active"} · {user.trips}{" "}
+                        lifetime trips
+                      </p>
+                    </div>
+                    <button
+                      className="outline"
+                      onClick={() => {
+                        setTab(tab === "trips" ? "usage" : "trips");
+                        setPage(1);
+                      }}
+                    >
+                      {tab === "trips" ? "Usage history" : "Trip history"}
+                    </button>
+                    <button
+                      className="icon"
+                      onClick={() => {
+                        setUser(null);
+                        setPage(1);
+                      }}
+                      aria-label="Clear user filter"
+                    >
+                      <X size={17} />
+                    </button>
+                  </div>
+                )}
+                {trip && (
+                  <div className="detail-banner">
+                    <strong>Usage for {trip.title}</strong>
+                    <button className="icon" onClick={() => setTrip(null)}>
+                      <X size={17} />
+                    </button>
+                  </div>
+                )}
+                {["users", "trips"].includes(tab) && (
+                  <form
+                    className="table-search"
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      setSearch(q);
+                      setPage(1);
+                    }}
+                  >
+                    <Search size={18} />
+                    <input
+                      value={q}
+                      onChange={(e) => setQ(e.target.value)}
+                      placeholder={
+                        tab === "users"
+                          ? "Search email addresses"
+                          : "Search journeys or destinations"
+                      }
+                    />
+                    <button className="outline">Search</button>
+                    {tab === "users" && (
+                      <select
+                        aria-label="Sort users"
+                        value={sort}
+                        onChange={(e) => setSort(e.target.value)}
+                      >
+                        <option value="created">Newest first</option>
+                        <option value="email">Email A–Z</option>
+                        <option value="cost">Highest cost</option>
+                      </select>
+                    )}
+                  </form>
+                )}
+                {tab === "admins" && (
+                  <form
+                    className="admin-create"
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      const form = e.currentTarget;
+                      const f = Object.fromEntries(new FormData(form));
+                      action(async () => {
+                        await api("/admin/admins", "POST", f);
+                        form.reset();
+                      });
+                    }}
+                  >
+                    <label>
+                      New administrator username
+                      <input
+                        name="username"
+                        required
+                        pattern="[-a-zA-Z0-9_]{3,50}"
+                      />
+                    </label>
+                    <label>
+                      Temporary password
+                      <input
+                        name="password"
+                        type="password"
+                        required
+                        minLength={12}
+                        autoComplete="new-password"
+                      />
+                    </label>
+                    <button className="primary" disabled={busy}>
+                      <Plus size={16} />
+                      Add administrator
+                    </button>
+                    <p className="fine-print">
+                      New administrators must change their temporary passwords
+                      before accessing data.
+                    </p>
+                  </form>
+                )}
+                <div className="table-wrap">
+                  <table>
+                    <thead>
+                      <tr>
+                        {cols.map((c) => (
+                          <th key={c}>{c.replaceAll("_", " ")}</th>
+                        ))}
+                        {["users", "trips", "admins", "usage"].includes(
+                          tab,
+                        ) && <th>Actions / details</th>}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {data?.rows?.map((row: any) => (
+                        <tr key={row.id}>
+                          {cols.map((c) => (
+                            <td key={c}>
+                              {c.includes("cost")
+                                ? money(row[c])
+                                : [
+                                      "verified",
+                                      "disabled",
+                                      "must_change",
+                                    ].includes(c)
+                                  ? row[c]
+                                    ? "Yes"
+                                    : "No"
+                                  : (row[c] ?? "—")}
+                            </td>
+                          ))}
+                          {tab === "users" && (
+                            <td className="table-actions">
+                              <button
+                                onClick={() => {
+                                  setUser(row);
+                                  setTab("trips");
+                                  setPage(1);
+                                }}
+                              >
+                                Inspect
+                              </button>
+                              <button
+                                disabled={busy}
+                                onClick={() => {
+                                  if (
+                                    confirm(
+                                      `${row.disabled ? "Enable" : "Disable"} ${row.email}?`,
+                                    )
+                                  )
+                                    action(() =>
+                                      api("/admin/users/" + row.id, "PATCH", {
+                                        disabled: !row.disabled,
+                                        confirm: true,
+                                      }),
+                                    );
+                                }}
+                              >
+                                {row.disabled ? "Enable" : "Disable"}
+                              </button>
+                              <button
+                                className="danger-link"
+                                disabled={busy}
+                                onClick={() => {
+                                  if (
+                                    confirm(
+                                      `Permanently delete ${row.email}, all their trips and conversations? Historical usage is retained without user attribution.`,
+                                    )
+                                  )
+                                    action(() =>
+                                      api("/admin/users/" + row.id, "DELETE", {
+                                        confirm: true,
+                                      }),
+                                    );
+                                }}
+                              >
+                                Delete
+                              </button>
+                            </td>
+                          )}
+                          {tab === "trips" && (
+                            <td className="table-actions">
+                              <button
+                                onClick={() =>
+                                  action(async () =>
+                                    setInspect(
+                                      await api("/admin/trips/" + row.id),
+                                    ),
+                                  )
+                                }
+                              >
+                                Inspect
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setTrip(row);
+                                  setTab("usage");
+                                  setPage(1);
+                                }}
+                              >
+                                Usage
+                              </button>
+                            </td>
+                          )}
+                          {tab === "admins" && (
+                            <td className="table-actions">
+                              <button
+                                disabled={busy}
+                                onClick={() => {
+                                  const password = prompt(
+                                    "Enter a new temporary password (12+ characters). The administrator must replace it on next login.",
+                                  );
+                                  if (password)
+                                    action(() =>
+                                      api("/admin/admins/" + row.id, "PATCH", {
+                                        password,
+                                        confirm: true,
+                                      }),
+                                    );
+                                }}
+                              >
+                                Reset password
+                              </button>
+                              <button
+                                disabled={busy}
+                                onClick={() => {
+                                  if (
+                                    confirm(
+                                      `${row.disabled ? "Enable" : "Disable"} administrator ${row.username}?`,
+                                    )
+                                  )
+                                    action(() =>
+                                      api("/admin/admins/" + row.id, "PATCH", {
+                                        disabled: !row.disabled,
+                                        confirm: true,
+                                      }),
+                                    );
+                                }}
+                              >
+                                {row.disabled ? "Enable" : "Disable"}
+                              </button>
+                              <button
+                                className="danger-link"
+                                disabled={busy}
+                                onClick={() => {
+                                  if (
+                                    confirm(
+                                      "Delete administrator " +
+                                        row.username +
+                                        "?",
+                                    )
+                                  )
+                                    action(() =>
+                                      api("/admin/admins/" + row.id, "DELETE", {
+                                        confirm: true,
+                                      }),
+                                    );
+                                }}
+                              >
+                                Delete
+                              </button>
+                            </td>
+                          )}
+                          {tab === "usage" && (
+                            <td>
+                              <details>
+                                <summary>Attribution & pricing</summary>
+                                <pre>
+                                  {JSON.stringify(
+                                    {
+                                      user: row.user_id,
+                                      guest: row.guest_id,
+                                      trip: row.trip_id,
+                                      cached_tokens: row.cached_tokens,
+                                      pricing: JSON.parse(row.pricing),
+                                      currency: row.currency,
+                                      error: row.error,
+                                    },
+                                    null,
+                                    2,
+                                  )}
+                                </pre>
+                              </details>
+                            </td>
+                          )}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  {!data?.rows?.length && (
+                    <p className="table-empty">
+                      {busy
+                        ? "Loading records…"
+                        : "No records match these filters."}
+                    </p>
+                  )}
+                </div>
+                {tab !== "admins" && (
+                  <div className="pagination">
+                    <button
+                      className="outline"
+                      disabled={page === 1 || busy}
+                      onClick={() => setPage(page - 1)}
+                    >
+                      <ChevronLeft size={16} />
+                      Previous
+                    </button>
+                    <span>Page {page} · 25 records per page</span>
+                    <button
+                      className="outline"
+                      disabled={!data?.rows || data.rows.length < 25 || busy}
+                      onClick={() => setPage(page + 1)}
+                    >
+                      Next
+                      <ChevronRight size={16} />
+                    </button>
+                  </div>
+                )}
+              </>
+            )}
+            {inspect && (
+              <div className="modal-backdrop">
+                <div
+                  className="modal inspection"
+                  role="dialog"
+                  aria-modal="true"
+                  aria-label="Trip inspection"
+                >
+                  <button
+                    className="icon close"
+                    onClick={() => setInspect(null)}
+                  >
+                    <X size={19} />
+                  </button>
+                  <h2>{inspect.trip.title}</h2>
+                  <p className="muted">
+                    Created {inspect.trip.created_at}
+                    <br />
+                    Updated {inspect.trip.updated_at}
+                  </p>
+                  <details>
+                    <summary>Preferences</summary>
+                    <pre>
+                      {JSON.stringify(inspect.trip.preferences, null, 2)}
+                    </pre>
+                  </details>
+                  {inspect.trip.itinerary.map((d: any, i: number) => (
+                    <div className="admin-inspect-day" key={d.id}>
+                      <h3>
+                        Day {i + 1} · {d.title}
+                      </h3>
+                      <p>{d.summary}</p>
+                      {d.activities.map((a: any) => (
+                        <p key={a.id}>
+                          <strong>
+                            {a.time} {a.title}
+                          </strong>{" "}
+                          · {a.duration} min · {a.location}
+                          <br />
+                          {a.description}
+                          <br />
+                          {money(
+                            a.cost,
+                            inspect.trip.preferences.currency,
+                          )}{" "}
+                          estimate · {a.transport}
+                        </p>
+                      ))}
+                    </div>
+                  ))}
+                  <h3>Conversation</h3>
+                  {inspect.messages.map((m: any) => (
+                    <p key={m.id}>
+                      <strong>{m.role}</strong>: {m.content}
+                    </p>
+                  ))}
+                </div>
+              </div>
+            )}
+          </>
+        )}
+      </main>
+    </div>
+  );
 }
-function Chart({title,rows,value}:{title:string;rows:any[];value:string}){const max=Math.max(...rows.map(r=>Number(r[value])||0),1);return <div className="chart"><h3>{title}</h3>{rows.length?<><div className="chart-bars">{rows.map(r=><div className="chart-column" key={r.day}><span className="chart-value">{Number(r[value]||0).toLocaleString(undefined,{maximumFractionDigits:4})}</span><div style={{height:Math.max(2,(Number(r[value])||0)/max*120)}} title={`${r.day}: ${r[value]??'unknown'}`}/><span>{r.day.slice(5)}</span></div>)}</div></>:<div className="chart-empty">No activity in this period</div>}</div>}
+function Chart({
+  title,
+  rows,
+  value,
+}: {
+  title: string;
+  rows: any[];
+  value: string;
+}) {
+  const max = Math.max(...rows.map((r) => Number(r[value]) || 0), 1);
+  return (
+    <div className="chart">
+      <h3>{title}</h3>
+      {rows.length ? (
+        <>
+          <div className="chart-bars">
+            {rows.map((r) => (
+              <div className="chart-column" key={r.day}>
+                <span className="chart-value">
+                  {Number(r[value] || 0).toLocaleString(undefined, {
+                    maximumFractionDigits: 4,
+                  })}
+                </span>
+                <div
+                  style={{
+                    height: Math.max(2, ((Number(r[value]) || 0) / max) * 120),
+                  }}
+                  title={`${r.day}: ${r[value] ?? "unknown"}`}
+                />
+                <span>{r.day.slice(5)}</span>
+              </div>
+            ))}
+          </div>
+        </>
+      ) : (
+        <div className="chart-empty">No activity in this period</div>
+      )}
+    </div>
+  );
+}

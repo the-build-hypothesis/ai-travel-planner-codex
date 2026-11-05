@@ -1,0 +1,135 @@
+{
+  "outcome": "Working application validated by 31 Worker integration tests, 8 real-browser tests, and live OpenAI/Google checks through the local Worker. First GitHub deployment failed at dependency installation; npm-10-compatible lockfile correction is ready for retry.",
+  "deployment": {
+    "status": "first GitHub build failed; corrected lockfile awaiting push",
+    "githubBuildsVerification": "failed: npm ci missing optional peer in initial npm-11 lockfile; repaired using npm 10.9.2",
+    "deployedCommitSha": null
+  },
+  "checks": [
+    {
+      "command": "npm run typecheck",
+      "environment": "local frontend/Worker",
+      "result": "passed",
+      "evidence": "PROGRESS.md"
+    },
+    {
+      "command": "npm test",
+      "environment": "workerd/local D1; mocked external services",
+      "result": "passed",
+      "counts": {
+        "passed": 31,
+        "failed": 0
+      },
+      "evidence": "tests/app.test.ts"
+    },
+    {
+      "command": "env LD_LIBRARY_PATH=/tmp/travel-browser-libs/root/usr/lib/x86_64-linux-gnu npx playwright test",
+      "environment": "local Worker, real Chromium desktop/mobile",
+      "result": "passed",
+      "counts": {
+        "passed": 8,
+        "failed": 0
+      },
+      "evidence": "evidence/discover-desktop.png; evidence/itinerary-mobile.png; evidence/map-desktop.png"
+    },
+    {
+      "command": "node scripts/live-local.mjs",
+      "environment": "local Worker, real OpenAI and Google",
+      "result": "passed",
+      "counts": {
+        "passed": 3,
+        "failed": 0
+      },
+      "evidence": "evidence/live-local.json"
+    },
+    {
+      "command": "npx --yes npm@10.9.2 ci --ignore-scripts --no-audit --no-fund --dry-run",
+      "environment": "Cloudflare-matching npm 10.9.2",
+      "result": "passed",
+      "evidence": "Missing peer entry repaired by regenerating lockfile"
+    },
+    {
+      "command": "npm run build",
+      "environment": "Vite production bundle",
+      "result": "passed",
+      "evidence": "PROGRESS.md"
+    },
+    {
+      "command": "npx wrangler d1 migrations apply DB --remote",
+      "environment": "Cloudflare D1",
+      "result": "passed",
+      "evidence": "0001_initial.sql: 24 commands succeeded"
+    },
+    {
+      "command": "GitHub push-event build f153f96177827c3dc7f2accafe49d3af83304ad8",
+      "environment": "Cloudflare Workers Builds",
+      "result": "failed",
+      "evidence": "evidence/latest-build-log.json: npm ci missing @cloudflare/workers-types@4 optional peer"
+    }
+  ],
+  "requirements": {
+    "11": {
+      "status": "Partial",
+      "evidence": [
+        "Application and initial reports committed/pushed; first GitHub build failed; corrected lockfile pending retry"
+      ]
+    },
+    "2.5": {
+      "status": "Verified",
+      "evidence": [
+        "evidence/live-local.json: 8 real Places results"
+      ]
+    },
+    "2.6": {
+      "status": "Verified",
+      "evidence": [
+        "8 desktop/mobile browser tests include map marker/popup; evidence/map-desktop.png"
+      ]
+    },
+    "2.7": {
+      "status": "Verified",
+      "evidence": [
+        "8 browser tests; desktop/mobile screenshots; no horizontal overflow"
+      ]
+    }
+  },
+  "integrations": {
+    "llm": {
+      "provider": "openai",
+      "model": "gpt-4o-mini",
+      "status": "live local integration passed; production pending"
+    },
+    "googlePlaces": {
+      "status": "live local integration passed: 8 results"
+    },
+    "maps": {
+      "status": "browser marker/popup verified on desktop and mobile"
+    },
+    "cloudflareEmail": {
+      "binding": "EMAIL",
+      "senderVariable": "EMAIL_FROM",
+      "status": "mocked delivery/token tests passed; production pending"
+    }
+  },
+  "verificationNotes": "Browser verification initially required three missing libraries to be downloaded/extracted under /tmp after system install failed due unavailable sudo. All 8 cases then passed. A subsequent development rebuild loop was diagnosed and fixed by making build-info generation idempotent; browser suite passed again.",
+  "issues": [
+    {
+      "severity": "medium",
+      "description": "First GitHub deployment failed during npm ci; corrected compatible lockfile ready.",
+      "impact": "Production still serves the original placeholder.",
+      "followUp": "Push and verify new GitHub-triggered build."
+    },
+    {
+      "severity": "medium",
+      "description": "Real transactional inbox delivery not verified.",
+      "impact": "Account verification/recovery require actual email receipt.",
+      "followUp": "Verify production binding and delivery to a controlled inbox."
+    },
+    {
+      "severity": "low",
+      "description": "No live opening hours/availability, routed directions or authoritative billing reconciliation.",
+      "impact": "Travel and cost values require independent verification.",
+      "followUp": "Use direct venue/provider checks."
+    }
+  ]
+}
