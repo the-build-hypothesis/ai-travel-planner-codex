@@ -100,6 +100,8 @@ npm run build
 
 Vitest runs the API in Cloudflare workerd with local D1 and deterministic mocked OpenAI, Google, and email responses. Tests do not establish live external integration. See `PROGRESS.md`, `BUILD_REPORT.md`, and `BUILD_RESULTS.json` for exact executed checks and remaining limitations.
 
+The npm pretest/pretypecheck hooks generate ignored build metadata automatically, so tests/typechecking also work before the first build on a fresh checkout. Optional browser checks require Chromium and its OS libraries: `npx playwright install --with-deps chromium`, start `npm run dev`, then run `npx playwright test`. Set `TEST_BASE_URL` to test another deployment; these guest browser cases create and then delete test trips. Runtime/infrastructure configuration history lives in Git and Cloudflare platform audit logs; there is no application configuration mutation API.
+
 ## Deployment
 
 Existing GitHub branch `main` connects to the assigned existing Worker through Workers Builds. `wrangler.jsonc` declares D1, assets, email, canonical URL and assigned custom domain. `npm run build` generates an embedded commit identifier exposed by `/api/health`. Run schema migration separately before deploying:

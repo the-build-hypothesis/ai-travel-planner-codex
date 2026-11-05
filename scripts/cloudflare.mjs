@@ -133,10 +133,11 @@ if (cmd === "inspect") {
       stoppedAt: b.stopped_on,
     })),
   };
-  writeFileSync(
-    "evidence/github-builds.json",
-    JSON.stringify(summary, null, 2) + "\n",
-  );
+  if (!process.argv.includes("--no-save"))
+    writeFileSync(
+      "evidence/github-builds.json",
+      JSON.stringify(summary, null, 2) + "\n",
+    );
   console.log(JSON.stringify(summary, null, 2));
 } else if (cmd === "build-log") {
   const scripts = await cf("/workers/scripts");
@@ -255,11 +256,16 @@ if (cmd === "inspect") {
   console.log(JSON.stringify(evidence, null, 2));
 } else if (cmd === "health") {
   const r = await fetch(c.APP_PUBLIC_URL + "/api/health");
-  console.log(
-    JSON.stringify(
-      { status: r.status, url: c.APP_PUBLIC_URL, data: await r.json() },
-      null,
-      2,
-    ),
-  );
+  const observed = {
+    at: new Date().toISOString(),
+    status: r.status,
+    url: c.APP_PUBLIC_URL,
+    data: await r.json(),
+  };
+  if (!process.argv.includes("--no-save"))
+    writeFileSync(
+      "evidence/production-health.json",
+      JSON.stringify(observed, null, 2) + "\n",
+    );
+  console.log(JSON.stringify(observed, null, 2));
 } else throw new Error("Unknown operation");

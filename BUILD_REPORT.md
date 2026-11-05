@@ -1,6 +1,6 @@
 # Build and verification report — Elsewhere
 
-Generated 2026-11-05T17:52:32.419Z. Specification v1.7. All dates/times below are UTC unless noted.
+Generated 2026-11-05T18:03:51.805Z. Specification v1.7. All dates/times below are UTC unless noted.
 
 ## 1. Executive Summary
 
@@ -31,7 +31,7 @@ Status counts: Verified: 54; Partial: 1. `Verified` in the matrix describes the 
 | 4.3 | Non-enumerating 30-minute password recovery | Verified | Mocked reset validates 30-minute expiry, hashed one-use tokens and session invalidation. Production recovery request returned generic success and no recorded delivery failure. Inbox link consumption unverified. |
 | 4.4 | Graceful email delivery/configuration errors | Verified | Registration delivery failure and missing forgot-password binding tests; responses omit internal provider error. |
 | 5.1 | Separate administrative identities, sessions and authorization | Verified | Production admin authentication/logout and protected inspection pass; application/admin session separation tested. |
-| 5.2 | Bootstrap admin/admin with mandatory password change | Verified | Production initial admin/admin required password replacement and denied overview until changed; replacement succeeded; D1 reports one durable marker and zero admins awaiting change. Current credentials exist only in ignored local operator file. |
+| 5.2 | Bootstrap admin/admin with mandatory password change | Verified | Production initial admin/admin required password replacement and denied overview until changed; replacement succeeded; D1 reports one durable marker and zero admins awaiting change. Current credentials exist only in ignored local operator file. evidence/bootstrap-production-smoke.json; evidence/production-database.json |
 | 5.3 | Administrator creation/reset/disable/delete | Verified | Admin create/reset/disable/delete tests pass; production last-active-admin disabling rejected; admin UI rendered on desktop/mobile. |
 | 5.4 | Search/inspect/disable/enable/delete application users | Verified | Mocked account disabling/deletion and positive searchable/sortable user cost drill-down tests; production test account deleted by confirmed admin API. |
 | 5.5 | Inspect all guest/user trips, timestamps, costs and history | Verified | Production trip inspection and audit pass; 26-trip pagination/user filtering test passes; admin trip screen verified on both viewports. |
@@ -42,7 +42,7 @@ Status counts: Verified: 54; Partial: 1. `Verified` in the matrix describes the 
 | 6.5 | Per-request usage attribution/status/tokens/cost/duration | Verified | OpenAI and Google mocked request usage tests; secrets never in records. |
 | 6.6 | Model-specific cached/input/output LLM token accounting | Verified | 1000 input, 200 cached, 500 output with fixture rates gives USD 0.0029; price snapshots tested. |
 | 6.7 | Endpoint-specific Google Pro request accounting | Verified | One Text Search Pro fixture request at USD 32/1000 yields USD 0.032; guest/trip attribution tested. |
-| 6.8 | Estimated costs, historical assumptions and unattributed activity | Verified | Null unknown pricing and non-trip Google request tests; historical JSON snapshots. No invoice reconciliation. |
+| 6.8 | Estimated costs, historical assumptions and unattributed activity | Verified | Null unknown pricing and outside-trip usage tests pass. Deletion regression proves retained costs are counted as unattributed; final authenticated production overview reports all six deleted-trip requests and USD 0.065572 in unattributed totals. evidence/admin-browser.json |
 | 6.9 | Cost/trip/user/token/Google usage visualizations | Verified | Authenticated production desktop/mobile browser walkthrough renders all five charts. Cost chart scaling refined after visual inspection. evidence/production-admin-desktop.png |
 | 6.10 | API failures, sanitized app errors, volume and latency | Verified | Provider failures recorded with status/duration in tests; overview SQL covers latency and failure count. |
 | 7 | Append-only-through-API sensitive admin audit logging | Verified | Production sensitive actions/trip access appear in audit; tests verify rate-limited login audit without credential leakage, admin lifecycle, user deletion and separation. |
@@ -54,7 +54,7 @@ Status counts: Verified: 54; Partial: 1. `Verified` in the matrix describes the 
 | 9.1 | Existing Worker, project-prefixed D1 and migrations | Verified | Cloudflare operator provision and remote Wrangler migration succeeded. |
 | 9.2 | Configured transactional email integration | Verified | EMAIL binding deployed without changing domain email settings; verification/reset requests exercised, no email-delivery errors recorded. Actual inbox receipt unverified. |
 | 10 | Preserve administrator-managed secrets and LLM configuration | Verified | Worker metadata inspected without secret retrieval; keep_vars true; no secret-management commands used. |
-| 11 | Commit/push and GitHub-triggered Workers Builds deployment | Verified | GitHub push-event build 5067c791-0bde-432a-b53c-a329d63b3e8c succeeded for c0081f919268fac3394c326ff20e0c91fc78f511. HTTPS health matches application commit. evidence/github-builds.json; evidence/production-smoke.json |
+| 11 | Commit/push and GitHub-triggered Workers Builds deployment | Verified | GitHub push-event build 0a997ad4-4dd8-4692-b162-64b45e62f707 succeeded for 1f279326e15366afec3952f7382095058a504b2f. HTTPS health matches application commit. evidence/github-builds.json; evidence/production-smoke.json |
 | 12 | Assigned root URL, custom domain, HTTPS and email URL | Verified | Assigned root HTTPS URL serves frontend, API, /admin and deep links in production browser tests; build logs confirm custom-domain association. Managed canonical URL corrected to assigned hostname. |
 | 13.auth | Passwords, token hashing, ownership and CSRF/security headers | Verified | API authentication/isolation/token/CSRF tests pass; actual production HTML, admin HTML and API responses each carry CSP, frame protection, no-sniff, HSTS and referrer headers. evidence/security-headers.json |
 | 13.1 | Server-side safeguards for billable API abuse | Verified | IP/account limits, input lengths, bounded output and timeouts implemented; limiter test passed. |
@@ -101,15 +101,16 @@ Administrator setup is operator-controlled: after migration run `node scripts/cl
 - **blocked** — `Receive and consume verification/reset links in a controlled inbox` (production). No controlled mailbox/recipient access was available. Mocked token consumption passes; provider send accepted.
 - **skipped** — `Real multi-device account access across separate physical devices` (production). No physical second device; API ownership, sessions and server persistence tested.
 - **passed** — `node scripts/production-smoke.mjs` (production HTTPS; actual OpenAI/Google/Cloudflare email). {"passed":22,"failed":0}. evidence/production-smoke.json
+- **passed** — `Initial production bootstrap workflow` (production). {"passed":24,"failed":0}. evidence/bootstrap-production-smoke.json: original successful run includes forced initial password replacement
 - **passed** — `Production HTML/admin/API security headers` (production HTTP). {"passed":3,"failed":0}. evidence/security-headers.json
 
-Mocked tests use actual workerd/local D1, but mocked OpenAI/Google/email responses. They validate application logic rather than upstream credentials or delivery. Latest production smoke and authenticated admin walkthrough passed on commit 8928130856c9c6c2cf08b3f6816b62d053a5e594. Initial failed runs are preserved as historical evidence and do not describe current behavior. Desktop/mobile tests use real Chromium, actual Worker APIs and OSM tiles; API unit tests mock upstream providers. Email provider acceptance is distinct from inbox receipt. Subsequent report-only commits can redeploy identical application source; deployment fields record the last observed verified commit at report generation.
+Mocked tests use actual workerd/local D1, but mocked OpenAI/Google/email responses. They validate application logic rather than upstream credentials or delivery. The live OpenAI/user API smoke passed on commit 8928130856c9c6c2cf08b3f6816b62d053a5e594; the final authenticated dashboard and deleted-trip accounting walkthrough passed on commit 1f279326e15366afec3952f7382095058a504b2f. Final public browser checks ran on the same application source with the active HTML security policy. Initial failed runs are preserved as historical evidence and do not describe current behavior. Desktop/mobile tests use real Chromium, actual Worker APIs and OSM tiles; API unit tests mock upstream providers. Email provider acceptance is distinct from inbox receipt. Subsequent report-only commits redeploy identical application source; deployment fields record the last observed verified commit at report generation.
 
 ## 6. Deployment and Infrastructure
 
 Observed Git branch: `null`. Observed HEAD: `null` (the report itself will be committed afterward). Worker: `ai-travel-planner-codex`, preserved existing primary Worker. D1: `bh-travel-v1-claude-codex-db` (`9412d31e-a976-473d-8260-a20d6c20ce1e`). Migration `0001_initial.sql` applied locally and remotely. Static assets, DB, EMAIL and canonical URL are declared in Wrangler. Managed LLM settings and secret values were not changed.
 
-Deployment verification: {"status":"deployed and production-verified","publicUrl":"https://ai-travel-planner-v1-codex.thebuildhypothesis.com","githubBuildsVerification":"success: 5067c791-0bde-432a-b53c-a329d63b3e8c","deployedCommitSha":"c0081f919268fac3394c326ff20e0c91fc78f511","verifiedSmokeCommitSha":"8928130856c9c6c2cf08b3f6816b62d053a5e594","buildSource":"push_event"}. No direct Wrangler production deploy was needed: all successful production versions used the pre-existing GitHub-triggered Workers Builds pipeline. Custom domain and HTTPS work. D1 migration applied before deployment. keep_vars preserved administrator-managed settings and secrets; only the assigned canonical URL and new pricing assumptions were supplied.
+Deployment verification: {"status":"deployed and production-verified","publicUrl":"https://ai-travel-planner-v1-codex.thebuildhypothesis.com","githubBuildsVerification":"success: 0a997ad4-4dd8-4692-b162-64b45e62f707","deployedCommitSha":"1f279326e15366afec3952f7382095058a504b2f","runtimeHealthCommitSha":"1f279326e15366afec3952f7382095058a504b2f","applicationSourceCommitSha":"1f279326e15366afec3952f7382095058a504b2f","verifiedSmokeCommitSha":"8928130856c9c6c2cf08b3f6816b62d053a5e594","buildSource":"push_event"}. No direct Wrangler production deploy was needed: all successful production versions used the pre-existing GitHub-triggered Workers Builds pipeline. Custom domain and HTTPS work. D1 migration applied before deployment. keep_vars preserved administrator-managed settings and secrets; only the assigned canonical URL and new pricing assumptions were supplied.
 
 ## 7. Integrations and Configuration
 
@@ -146,7 +147,7 @@ Additional bounded limitations: English UI; last 100 user trips in collection; l
 
 ## 11. Agent Execution Summary
 
-Observed start: 2026-11-05T16:36:10Z. End: not yet ended. Measured seconds at generation: 4582; delivery limit 28,800 seconds. Application implementation complete; final handoff and deployment provenance verification. Controlled inbox verification remains an external review step..
+Observed start: 2026-11-05T16:36:10Z. End: not yet ended. Measured seconds at generation: 5262; delivery limit 28,800 seconds. Application implementation complete; final handoff and deployment provenance verification. Controlled inbox verification remains an external review step..
 
 Milestones, actual failures and approvals: see PROGRESS.md. The initial empty repository was built from scratch; a nonexistent pinned Workers-types version was corrected and installed versions locked. Sandbox network/socket restrictions required approved retries for dependency downloads, Cloudflare operations and workerd tests. Tool approvals were human interventions; no user product decision was needed. No other agents were spawned. Production verification found and repaired a local/production cryptography discrepancy. All failures and retries are retained in PROGRESS.md and evidence. Final handoff is inside the eight-hour limit. endedAt remains null while final source/report publication and verification are in progress; elapsedSeconds is measured at report generation, not a fabricated final runtime.
 

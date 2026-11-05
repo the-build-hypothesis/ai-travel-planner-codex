@@ -9,6 +9,9 @@ const state = read("evidence/status.json"),
 if (smoke.failed || admin.failed || unit.failed)
   throw new Error("Cannot finalize with failing primary verification");
 const build = builds.builds.find((b) => b.outcome === "success");
+const health = read("evidence/production-health.json");
+if (health.status !== 200 || health.data.build.commit !== build.commit)
+  throw new Error("Build and runtime health provenance disagree");
 const database = read("evidence/production-database.json");
 const security = read("evidence/security-headers.json");
 const headersVerified = security.results.every((r) => r.passed);
@@ -29,8 +32,45 @@ state.deployment = {
   publicUrl: smoke.url,
   githubBuildsVerification: "success: " + build.id,
   deployedCommitSha: build.commit,
+  runtimeHealthCommitSha: health.data.build.commit,
+  applicationSourceCommitSha: admin.build?.commit || build.commit,
   verifiedSmokeCommitSha: smoke.checks.find((c) => c.commit)?.commit,
   buildSource: build.source,
+};
+state.infrastructure = {
+  resources: [
+    {
+      type: "D1",
+      name: "bh-travel-v1-claude-codex-db",
+      id: "9412d31e-a976-473d-8260-a20d6c20ce1e",
+      action: "created and migrated",
+    },
+    {
+      type: "Worker",
+      name: "ai-travel-planner-codex",
+      action:
+        "updated existing Worker through GitHub Builds; managed runtime settings preserved",
+    },
+    {
+      type: "Workers Assets",
+      name: "ASSETS",
+      action: "uploaded built frontend, photography and static header rules",
+    },
+    {
+      type: "Email binding",
+      name: "EMAIL",
+      action: "added Worker send binding; domain email configuration unchanged",
+    },
+    {
+      type: "Custom domain",
+      name: new URL(smoke.url).hostname,
+      action:
+        "verified association with assigned existing Worker and HTTPS root routing",
+    },
+  ],
+  migrations: {
+    "0001_initial.sql": "applied locally and remotely; 24 commands succeeded",
+  },
 };
 state.requirements = {
   ...state.requirements,
@@ -127,7 +167,7 @@ state.requirements = {
   5.2: {
     status: "Verified",
     evidence: [
-      "Production initial admin/admin required password replacement and denied overview until changed; replacement succeeded; D1 reports one durable marker and zero admins awaiting change. Current credentials exist only in ignored local operator file.",
+      "Production initial admin/admin required password replacement and denied overview until changed; replacement succeeded; D1 reports one durable marker and zero admins awaiting change. Current credentials exist only in ignored local operator file. evidence/bootstrap-production-smoke.json; evidence/production-database.json",
     ],
   },
   5.3: {
@@ -369,9 +409,11 @@ state.integrations = {
 state.accessNotes =
   "The deployed bootstrap password has already been replaced. Current administrator credentials are stored only in ignored local .admin-credentials (mode 0600). Use that file for operator handoff; no live password is included in reports. Registered QA account was deleted after checks. Two synthetic guest trips from the first public browser QA remain visible to administrators.";
 state.verificationNotes =
-  "Latest production smoke and authenticated admin walkthrough passed on commit " +
+  "The live OpenAI/user API smoke passed on commit " +
   smoke.checks.find((c) => c.commit)?.commit +
-  ". Initial failed runs are preserved as historical evidence and do not describe current behavior. Desktop/mobile tests use real Chromium, actual Worker APIs and OSM tiles; API unit tests mock upstream providers. Email provider acceptance is distinct from inbox receipt. Subsequent report-only commits can redeploy identical application source; deployment fields record the last observed verified commit at report generation.";
+  "; the final authenticated dashboard and deleted-trip accounting walkthrough passed on commit " +
+  admin.build?.commit +
+  ". Final public browser checks ran on the same application source with the active HTML security policy. Initial failed runs are preserved as historical evidence and do not describe current behavior. Desktop/mobile tests use real Chromium, actual Worker APIs and OSM tiles; API unit tests mock upstream providers. Email provider acceptance is distinct from inbox receipt. Subsequent report-only commits redeploy identical application source; deployment fields record the last observed verified commit at report generation.";
 state.deploymentNotes =
   "No direct Wrangler production deploy was needed: all successful production versions used the pre-existing GitHub-triggered Workers Builds pipeline. Custom domain and HTTPS work. D1 migration applied before deployment. keep_vars preserved administrator-managed settings and secrets; only the assigned canonical URL and new pricing assumptions were supplied.";
 state.executionNotes =
@@ -446,9 +488,26 @@ state.requirements["13.auth"] = {
       : "Authentication/ownership/CSRF tests pass. Explicit production HTTP check found HTML headers absent while API headers are present; public/_headers fix implemented and awaiting deployed verification. evidence/security-headers-before-fix.json",
   ],
 };
+state.requirements["6.8"] = {
+  status: "Verified",
+  evidence: [
+    "Null unknown pricing and outside-trip usage tests pass. Deletion regression proves retained costs are counted as unattributed; final authenticated production overview reports all six deleted-trip requests and USD 0.065572 in unattributed totals. evidence/admin-browser.json",
+  ],
+};
 state.checks = state.checks.filter(
   (c) => c.procedure !== "Production HTML/admin/API security headers",
 );
+state.checks = state.checks.filter(
+  (c) => c.procedure !== "Initial production bootstrap workflow",
+);
+state.checks.push({
+  procedure: "Initial production bootstrap workflow",
+  environment: "production",
+  result: "passed",
+  counts: { passed: 24, failed: 0 },
+  evidence:
+    "evidence/bootstrap-production-smoke.json: original successful run includes forced initial password replacement",
+});
 state.checks.push({
   procedure: "Production HTML/admin/API security headers",
   environment: "production HTTP",

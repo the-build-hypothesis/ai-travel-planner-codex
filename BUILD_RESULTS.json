@@ -2,11 +2,11 @@
   "schemaVersion": 1,
   "specVersion": "1.7",
   "project": "AI Travel Planner / Elsewhere",
-  "generatedAt": "2026-11-05T17:52:32.419Z",
+  "generatedAt": "2026-11-05T18:03:51.805Z",
   "execution": {
     "startedAt": "2026-11-05T16:36:10Z",
     "endedAt": null,
-    "elapsedSeconds": 4582,
+    "elapsedSeconds": 5262,
     "deliveryLimitSeconds": 28800,
     "completionReason": "Application implementation complete; final handoff and deployment provenance verification. Controlled inbox verification remains an external review step.",
     "humanInterventions": [
@@ -21,8 +21,10 @@
   "deployment": {
     "status": "deployed and production-verified",
     "publicUrl": "https://ai-travel-planner-v1-codex.thebuildhypothesis.com",
-    "githubBuildsVerification": "success: 5067c791-0bde-432a-b53c-a329d63b3e8c",
-    "deployedCommitSha": "c0081f919268fac3394c326ff20e0c91fc78f511",
+    "githubBuildsVerification": "success: 0a997ad4-4dd8-4692-b162-64b45e62f707",
+    "deployedCommitSha": "1f279326e15366afec3952f7382095058a504b2f",
+    "runtimeHealthCommitSha": "1f279326e15366afec3952f7382095058a504b2f",
+    "applicationSourceCommitSha": "1f279326e15366afec3952f7382095058a504b2f",
     "verifiedSmokeCommitSha": "8928130856c9c6c2cf08b3f6816b62d053a5e594",
     "buildSource": "push_event"
   },
@@ -184,7 +186,7 @@
       "description": "Bootstrap admin/admin with mandatory password change",
       "status": "Verified",
       "evidence": [
-        "Production initial admin/admin required password replacement and denied overview until changed; replacement succeeded; D1 reports one durable marker and zero admins awaiting change. Current credentials exist only in ignored local operator file."
+        "Production initial admin/admin required password replacement and denied overview until changed; replacement succeeded; D1 reports one durable marker and zero admins awaiting change. Current credentials exist only in ignored local operator file. evidence/bootstrap-production-smoke.json; evidence/production-database.json"
       ]
     },
     {
@@ -272,7 +274,7 @@
       "description": "Estimated costs, historical assumptions and unattributed activity",
       "status": "Verified",
       "evidence": [
-        "Null unknown pricing and non-trip Google request tests; historical JSON snapshots. No invoice reconciliation."
+        "Null unknown pricing and outside-trip usage tests pass. Deletion regression proves retained costs are counted as unattributed; final authenticated production overview reports all six deleted-trip requests and USD 0.065572 in unattributed totals. evidence/admin-browser.json"
       ]
     },
     {
@@ -368,7 +370,7 @@
       "description": "Commit/push and GitHub-triggered Workers Builds deployment",
       "status": "Verified",
       "evidence": [
-        "GitHub push-event build 5067c791-0bde-432a-b53c-a329d63b3e8c succeeded for c0081f919268fac3394c326ff20e0c91fc78f511. HTTPS health matches application commit. evidence/github-builds.json; evidence/production-smoke.json"
+        "GitHub push-event build 0a997ad4-4dd8-4692-b162-64b45e62f707 succeeded for 1f279326e15366afec3952f7382095058a504b2f. HTTPS health matches application commit. evidence/github-builds.json; evidence/production-smoke.json"
       ]
     },
     {
@@ -589,6 +591,16 @@
       "evidence": "evidence/production-smoke.json"
     },
     {
+      "procedure": "Initial production bootstrap workflow",
+      "environment": "production",
+      "result": "passed",
+      "counts": {
+        "passed": 24,
+        "failed": 0
+      },
+      "evidence": "evidence/bootstrap-production-smoke.json: original successful run includes forced initial password replacement"
+    },
+    {
       "procedure": "Production HTML/admin/API security headers",
       "environment": "production HTTP",
       "result": "passed",
@@ -631,16 +643,31 @@
         "type": "D1",
         "name": "bh-travel-v1-claude-codex-db",
         "id": "9412d31e-a976-473d-8260-a20d6c20ce1e",
-        "action": "created"
+        "action": "created and migrated"
       },
       {
         "type": "Worker",
         "name": "ai-travel-planner-codex",
-        "action": "existing; generated configuration targets this Worker"
+        "action": "updated existing Worker through GitHub Builds; managed runtime settings preserved"
+      },
+      {
+        "type": "Workers Assets",
+        "name": "ASSETS",
+        "action": "uploaded built frontend, photography and static header rules"
+      },
+      {
+        "type": "Email binding",
+        "name": "EMAIL",
+        "action": "added Worker send binding; domain email configuration unchanged"
+      },
+      {
+        "type": "Custom domain",
+        "name": "ai-travel-planner-v1-codex.thebuildhypothesis.com",
+        "action": "verified association with assigned existing Worker and HTTPS root routing"
       }
     ],
     "migrations": {
-      "0001_initial.sql": "applied locally and remotely"
+      "0001_initial.sql": "applied locally and remotely; 24 commands succeeded"
     }
   },
   "issues": [

@@ -1,12 +1,29 @@
 {
-  "at": "2026-11-05T17:43:00.243Z",
+  "at": "2026-11-05T17:54:44.083Z",
+  "build": {
+    "commit": "1f279326e15366afec3952f7382095058a504b2f",
+    "builtAt": "2026-11-05T17:53:33.743Z"
+  },
   "environment": "production real Chromium, no traces or credential screenshots",
   "results": [
     {
       "check": "desktop administrator dashboard/charts",
       "passed": true,
       "overflow": false,
-      "errors": []
+      "errors": [],
+      "accounting": {
+        "llm": 0.001572,
+        "places": 0.064,
+        "total": 0.065572,
+        "requests": 6,
+        "unknown_costs": 0,
+        "failures": 0,
+        "latency": 4529.5,
+        "input_tokens": 2832,
+        "output_tokens": 1912,
+        "unattributed_cost": 0.065572,
+        "unattributed_requests": 6
+      }
     },
     {
       "check": "desktop Travelers screen",
@@ -40,7 +57,20 @@
       "check": "mobile administrator dashboard/charts",
       "passed": true,
       "overflow": false,
-      "errors": []
+      "errors": [],
+      "accounting": {
+        "llm": 0.001572,
+        "places": 0.064,
+        "total": 0.065572,
+        "requests": 6,
+        "unknown_costs": 0,
+        "failures": 0,
+        "latency": 4529.5,
+        "input_tokens": 2832,
+        "output_tokens": 1912,
+        "unattributed_cost": 0.065572,
+        "unattributed_requests": 6
+      }
     },
     {
       "check": "mobile Travelers screen",

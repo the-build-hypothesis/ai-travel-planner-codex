@@ -11,7 +11,9 @@
     "test": "vitest run",
     "deploy": "wrangler deploy",
     "db:local": "wrangler d1 migrations apply DB --local",
-    "db:remote": "wrangler d1 migrations apply DB --remote"
+    "db:remote": "wrangler d1 migrations apply DB --remote",
+    "pretest": "node scripts/build-info.mjs",
+    "pretypecheck": "node scripts/build-info.mjs"
   },
   "dependencies": {
     "@noble/hashes": "^2.4.0",

@@ -1,0 +1,12 @@
+{
+  "at": "2026-11-05T17:59:26.460Z",
+  "status": 200,
+  "url": "https://ai-travel-planner-v1-codex.thebuildhypothesis.com",
+  "data": {
+    "ok": true,
+    "build": {
+      "commit": "1f279326e15366afec3952f7382095058a504b2f",
+      "builtAt": "2026-11-05T17:53:33.743Z"
+    }
+  }
+}
