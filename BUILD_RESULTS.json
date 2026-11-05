@@ -2,11 +2,11 @@
   "schemaVersion": 1,
   "specVersion": "1.7",
   "project": "AI Travel Planner / Elsewhere",
-  "generatedAt": "2026-11-05T17:17:22.938Z",
+  "generatedAt": "2026-11-05T17:22:47.544Z",
   "execution": {
     "startedAt": "2026-11-05T16:36:10Z",
     "endedAt": null,
-    "elapsedSeconds": 2473,
+    "elapsedSeconds": 2798,
     "deliveryLimitSeconds": 28800,
     "completionReason": "Implementation checkpoint; validation and deployment in progress",
     "humanInterventions": [
@@ -19,10 +19,11 @@
     "note": "Observed HEAD when report was generated; reports are necessarily committed after this observation."
   },
   "deployment": {
-    "status": "first GitHub build failed; corrected lockfile awaiting push",
+    "status": "deployed; authentication fix awaiting push",
     "publicUrl": "https://ai-travel-planner-v1-codex.thebuildhypothesis.com",
-    "githubBuildsVerification": "failed: npm ci missing optional peer in initial npm-11 lockfile; repaired using npm 10.9.2",
-    "deployedCommitSha": null
+    "githubBuildsVerification": "success: 7f3a2572-2648-4fdb-b282-13ecb886a468",
+    "deployedCommitSha": "fe5d98b743c14051de762d08bdcb5a1e87612a9a",
+    "workerVersion": "ac6441de-7bee-4763-b852-b0273b203121"
   },
   "requirements": [
     {
@@ -367,10 +368,10 @@
     {
       "reference": "11",
       "description": "Commit/push and GitHub-triggered Workers Builds deployment",
-      "status": "Partial",
+      "status": "Verified",
       "evidence": [
         "Source not pushed at this checkpoint.",
-        "Application and initial reports committed/pushed; first GitHub build failed; corrected lockfile pending retry"
+        "GitHub push-event build 7f3a2572-2648-4fdb-b282-13ecb886a468 succeeded; HTTPS health matches commit"
       ]
     },
     {
@@ -482,7 +483,7 @@
       "environment": "workerd/local D1; mocked external services",
       "result": "passed",
       "counts": {
-        "passed": 31,
+        "passed": 33,
         "failed": 0
       },
       "evidence": "tests/app.test.ts"
@@ -530,6 +531,12 @@
       "environment": "Cloudflare Workers Builds",
       "result": "failed",
       "evidence": "evidence/latest-build-log.json: npm ci missing @cloudflare/workers-types@4 optional peer"
+    },
+    {
+      "command": "node scripts/production-smoke.mjs",
+      "environment": "production",
+      "result": "failed",
+      "evidence": "evidence/production-smoke.json: health passed; administrator login HTTP 500; fix prepared"
     }
   ],
   "integrations": {
@@ -570,10 +577,10 @@
   },
   "issues": [
     {
-      "severity": "medium",
-      "description": "First GitHub deployment failed during npm ci; corrected compatible lockfile ready.",
-      "impact": "Production still serves the original placeholder.",
-      "followUp": "Push and verify new GitHub-triggered build."
+      "severity": "high",
+      "description": "Production native PBKDF2 cap blocks account/admin authentication in deployed fe5d98b; portable fix tested locally, pending deployment.",
+      "impact": "Accounts cannot sign in until fix is deployed.",
+      "followUp": "Deploy portable hashing fix and rerun production smoke."
     },
     {
       "severity": "medium",
@@ -598,11 +605,11 @@
   },
   "summary": {
     "counts": {
-      "Verified": 46,
+      "Verified": 47,
       "Implemented but Unverified": 6,
-      "Partial": 2,
+      "Partial": 1,
       "Not Started": 1
     },
-    "outcome": "Working application validated by 31 Worker integration tests, 8 real-browser tests, and live OpenAI/Google checks through the local Worker. First GitHub deployment failed at dependency installation; npm-10-compatible lockfile correction is ready for retry."
+    "outcome": "GitHub-triggered deployment succeeded and HTTPS health matches fe5d98b. Live production verification exposed a native PBKDF2 cap; portable standard PBKDF2 fix passes 33 integration tests and is ready for deployment. Local browser suite passes 8/8 and live local OpenAI/Google checks pass."
   }
 }

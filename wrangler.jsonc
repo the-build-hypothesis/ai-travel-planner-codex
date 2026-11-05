@@ -8,35 +8,35 @@
     "directory": "./dist",
     "binding": "ASSETS",
     "not_found_handling": "single-page-application",
-    "run_worker_first": ["/api/*"],
+    "run_worker_first": ["/api/*"]
   },
   "d1_databases": [
     {
       "binding": "DB",
       "database_name": "bh-travel-v1-claude-codex-db",
       "database_id": "9412d31e-a976-473d-8260-a20d6c20ce1e",
-      "migrations_dir": "migrations",
-    },
+      "migrations_dir": "migrations"
+    }
   ],
   "send_email": [
     {
-      "name": "EMAIL",
-    },
+      "name": "EMAIL"
+    }
   ],
   "vars": {
     "APP_PUBLIC_URL": "https://ai-travel-planner-v1-codex.thebuildhypothesis.com",
-    "PRICING_JSON": "{\"gpt-4o-mini\":{\"input\":0.15,\"output\":0.6,\"cached\":0.075,\"reference\":\"https://developers.openai.com/api/docs/models/gpt-4o-mini — checked 2026-11-05; standard USD per million text tokens\"},\"google_text_search\":{\"per1000\":32,\"reference\":\"https://developers.google.com/maps/billing-and-pricing/pricing — checked 2026-11-05; Text Search Pro SKU 4FDA-34B1-A910; USD per 1000; base tier before shared free allowance, volume tiers, discounts and tax\"}}",
+    "PRICING_JSON": "{\"gpt-4o-mini\":{\"input\":0.15,\"output\":0.6,\"cached\":0.075,\"reference\":\"https://developers.openai.com/api/docs/models/gpt-4o-mini — checked 2026-11-05; standard USD per million text tokens\"},\"google_text_search\":{\"per1000\":32,\"reference\":\"https://developers.google.com/maps/billing-and-pricing/pricing — checked 2026-11-05; Text Search Pro SKU 4FDA-34B1-A910; USD per 1000; base tier before shared free allowance, volume tiers, discounts and tax\"}}"
   },
   "routes": [
     {
       "pattern": "ai-travel-planner-v1-codex.thebuildhypothesis.com",
-      "custom_domain": true,
-    },
+      "custom_domain": true
+    }
   ],
   "observability": {
-    "enabled": true,
+    "enabled": true
   },
   "build": {
-    "command": "npm run build",
-  },
+    "command": "npm run build"
+  }
 }

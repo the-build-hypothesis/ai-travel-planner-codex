@@ -1,0 +1,27 @@
+{
+  "at": "2026-11-05T17:20:10.787Z",
+  "environment": "production; actual OpenAI, Google and email-binding calls",
+  "url": "https://ai-travel-planner-v1-codex.thebuildhypothesis.com",
+  "checks": [
+    {
+      "name": "HTTPS production health and deployed commit",
+      "passed": true,
+      "status": 200,
+      "commit": "fe5d98b743c14051de762d08bdcb5a1e87612a9a"
+    },
+    {
+      "name": "Administrator authentication",
+      "passed": false,
+      "status": 500,
+      "error": "Something went wrong. Please try again."
+    },
+    {
+      "name": "Smoke execution completed",
+      "passed": false,
+      "error": "Administrator login failed"
+    }
+  ],
+  "passed": 1,
+  "failed": 2,
+  "inboxDeliveryVerified": false
+}

@@ -1,9 +1,10 @@
 {
-  "outcome": "Working application validated by 31 Worker integration tests, 8 real-browser tests, and live OpenAI/Google checks through the local Worker. First GitHub deployment failed at dependency installation; npm-10-compatible lockfile correction is ready for retry.",
+  "outcome": "GitHub-triggered deployment succeeded and HTTPS health matches fe5d98b. Live production verification exposed a native PBKDF2 cap; portable standard PBKDF2 fix passes 33 integration tests and is ready for deployment. Local browser suite passes 8/8 and live local OpenAI/Google checks pass.",
   "deployment": {
-    "status": "first GitHub build failed; corrected lockfile awaiting push",
-    "githubBuildsVerification": "failed: npm ci missing optional peer in initial npm-11 lockfile; repaired using npm 10.9.2",
-    "deployedCommitSha": null
+    "status": "deployed; authentication fix awaiting push",
+    "githubBuildsVerification": "success: 7f3a2572-2648-4fdb-b282-13ecb886a468",
+    "deployedCommitSha": "fe5d98b743c14051de762d08bdcb5a1e87612a9a",
+    "workerVersion": "ac6441de-7bee-4763-b852-b0273b203121"
   },
   "checks": [
     {
@@ -17,7 +18,7 @@
       "environment": "workerd/local D1; mocked external services",
       "result": "passed",
       "counts": {
-        "passed": 31,
+        "passed": 33,
         "failed": 0
       },
       "evidence": "tests/app.test.ts"
@@ -65,13 +66,19 @@
       "environment": "Cloudflare Workers Builds",
       "result": "failed",
       "evidence": "evidence/latest-build-log.json: npm ci missing @cloudflare/workers-types@4 optional peer"
+    },
+    {
+      "command": "node scripts/production-smoke.mjs",
+      "environment": "production",
+      "result": "failed",
+      "evidence": "evidence/production-smoke.json: health passed; administrator login HTTP 500; fix prepared"
     }
   ],
   "requirements": {
     "11": {
-      "status": "Partial",
+      "status": "Verified",
       "evidence": [
-        "Application and initial reports committed/pushed; first GitHub build failed; corrected lockfile pending retry"
+        "GitHub push-event build 7f3a2572-2648-4fdb-b282-13ecb886a468 succeeded; HTTPS health matches commit"
       ]
     },
     "2.5": {
@@ -114,10 +121,10 @@
   "verificationNotes": "Browser verification initially required three missing libraries to be downloaded/extracted under /tmp after system install failed due unavailable sudo. All 8 cases then passed. A subsequent development rebuild loop was diagnosed and fixed by making build-info generation idempotent; browser suite passed again.",
   "issues": [
     {
-      "severity": "medium",
-      "description": "First GitHub deployment failed during npm ci; corrected compatible lockfile ready.",
-      "impact": "Production still serves the original placeholder.",
-      "followUp": "Push and verify new GitHub-triggered build."
+      "severity": "high",
+      "description": "Production native PBKDF2 cap blocks account/admin authentication in deployed fe5d98b; portable fix tested locally, pending deployment.",
+      "impact": "Accounts cannot sign in until fix is deployed.",
+      "followUp": "Deploy portable hashing fix and rerun production smoke."
     },
     {
       "severity": "medium",

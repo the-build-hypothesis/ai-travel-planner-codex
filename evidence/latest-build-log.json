@@ -1,150 +1,479 @@
 {
-  "cursor": "WzAsMjk1XQ",
+  "cursor": "WzAsNDI1XQ",
   "truncated": false,
   "lines": [
     [
-      1793898550517,
+      1793899095748,
       "Initializing build environment..."
     ],
     [
-      1793898552475,
+      1793899097483,
       "Success: Finished initializing build environment"
     ],
     [
-      1793898554379,
+      1793899098409,
       "Cloning repository..."
     ],
     [
-      1793898555775,
-      "Restoring from dependencies cache"
-    ],
-    [
-      1793898555777,
-      "Restoring from build output cache"
-    ],
-    [
-      1793898555781,
+      1793899100239,
       "Detected the following tools from environment: npm@10.9.2, nodejs@24.22.1"
     ],
     [
-      1793898556371,
+      1793899100241,
+      "Restoring from dependencies cache"
+    ],
+    [
+      1793899100243,
+      "Restoring from build output cache"
+    ],
+    [
+      1793899100442,
       "Installing project dependencies: npm clean-install --progress=false"
     ],
     [
-      1793898557559,
-      "npm error code EUSAGE"
+      1793899105595,
+      "npm warn deprecated @cloudflare/vitest-pool-workers@0.8.71: @cloudflare/vitest-pool-workers has been renamed to @cloudflare/vitest-plugin. This package will not receive future updates."
     ],
     [
-      1793898557559,
-      "npm error"
+      1793899112700,
+      ""
     ],
     [
-      1793898557559,
-      "npm error `npm ci` can only install packages when your package.json and package-lock.json or npm-shrinkwrap.json are in sync. Please update your lock file with `npm install` before continuing."
+      1793899112701,
+      "added 142 packages in 11s"
     ],
     [
-      1793898557559,
-      "npm error"
+      1793899112701,
+      ""
     ],
     [
-      1793898557559,
-      "npm error Missing: @cloudflare/workers-types@4.20260702.1 from lock file"
+      1793899112701,
+      "35 packages are looking for funding"
     ],
     [
-      1793898557559,
-      "npm error"
+      1793899112701,
+      "  run `npm fund` for details"
     ],
     [
-      1793898557559,
-      "npm error Clean install a project"
+      1793899112966,
+      "Executing user deploy command: npx wrangler deploy"
     ],
     [
-      1793898557559,
-      "npm error"
+      1793899114581,
+      ""
     ],
     [
-      1793898557559,
-      "npm error Usage:"
+      1793899114581,
+      " ⛅️ wrangler 4.158.0"
     ],
     [
-      1793898557559,
-      "npm error npm ci"
+      1793899114581,
+      "────────────────────"
     ],
     [
-      1793898557559,
-      "npm error"
+      1793899114619,
+      "[custom build] Running: npm run build"
     ],
     [
-      1793898557559,
-      "npm error Options:"
+      1793899114981,
+      "[custom build] "
     ],
     [
-      1793898557559,
-      "npm error [--install-strategy <hoisted|nested|shallow|linked>] [--legacy-bundling]"
+      1793899114984,
+      "[custom build] > ai-travel-planner@1.0.0 build"
     ],
     [
-      1793898557560,
-      "npm error [--global-style] [--omit <dev|optional|peer> [--omit <dev|optional|peer> ...]]"
+      1793899114984,
+      "[custom build] > node scripts/build-info.mjs && vite build"
     ],
     [
-      1793898557560,
-      "npm error [--include <prod|dev|optional|peer> [--include <prod|dev|optional|peer> ...]]"
+      1793899114984,
+      "[custom build] "
     ],
     [
-      1793898557560,
-      "npm error [--strict-peer-deps] [--foreground-scripts] [--ignore-scripts] [--no-audit]"
+      1793899114984,
+      "[custom build] "
     ],
     [
-      1793898557560,
-      "npm error [--no-bin-links] [--no-fund] [--dry-run]"
+      1793899115095,
+      "[custom build] vite v7.3.7 building client environment for production..."
     ],
     [
-      1793898557560,
-      "npm error [-w|--workspace <workspace-name> [-w|--workspace <workspace-name> ...]]"
+      1793899115096,
+      "[custom build] "
     ],
     [
-      1793898557560,
-      "npm error [-ws|--workspaces] [--include-workspace-root] [--install-links]"
+      1793899115187,
+      "[custom build] transforming..."
     ],
     [
-      1793898557560,
-      "npm error"
+      1793899115187,
+      "[custom build] "
     ],
     [
-      1793898557560,
-      "npm error aliases: clean-install, ic, install-clean, isntall-clean"
+      1793899118874,
+      "[custom build] ✓ 1586 modules transformed."
     ],
     [
-      1793898557560,
-      "npm error"
+      1793899118874,
+      "[custom build] "
     ],
     [
-      1793898557560,
-      "npm error Run \"npm help ci\" for more info"
+      1793899119013,
+      "[custom build] rendering chunks..."
     ],
     [
-      1793898557560,
-      "npm error A complete log of this run can be found in: /opt/buildhome/.npm/_logs/2026-11-05T17_09_16_707Z-debug-0.log"
+      1793899119013,
+      "[custom build] "
     ],
     [
-      1793898557604,
-      "Failed: error occurred while installing tools or dependencies"
+      1793899119196,
+      "[custom build] computing gzip size..."
+    ],
+    [
+      1793899119196,
+      "[custom build] "
+    ],
+    [
+      1793899119212,
+      "[custom build] dist/index.html                     0.63 kB │ gzip:  0.39 kB"
+    ],
+    [
+      1793899119212,
+      "[custom build] "
+    ],
+    [
+      1793899119213,
+      "[custom build] dist/assets/MapView-CIGW-MKW.css   15.61 kB │ gzip:  6.46 kB"
+    ],
+    [
+      1793899119213,
+      "[custom build] dist/assets/index-vObOis1H.css     36.70 kB │ gzip:  8.35 kB"
+    ],
+    [
+      1793899119213,
+      "[custom build] dist/assets/Admin-BrnfbzpN.js      18.29 kB │ gzip:  5.83 kB"
+    ],
+    [
+      1793899119213,
+      "[custom build] dist/assets/MapView-Clptz4py.js   151.21 kB │ gzip: 44.15 kB"
+    ],
+    [
+      1793899119213,
+      "[custom build] dist/assets/index-CWAvqTh1.js     270.62 kB │ gzip: 83.89 kB"
+    ],
+    [
+      1793899119213,
+      "[custom build] "
+    ],
+    [
+      1793899119213,
+      "[custom build] ✓ built in 4.08s"
+    ],
+    [
+      1793899119214,
+      "[custom build] "
+    ],
+    [
+      1793899120537,
+      "▲ [WARNING] The local configuration being used (generated from your local configuration file) differs from the remote configuration of your Worker set via the Cloudflare Dashboard:"
+    ],
+    [
+      1793899120538,
+      ""
+    ],
+    [
+      1793899120538,
+      "   {"
+    ],
+    [
+      1793899120538,
+      "  +  assets: {"
+    ],
+    [
+      1793899120538,
+      "  +    binding: \"ASSETS\""
+    ],
+    [
+      1793899120539,
+      "  +  }"
+    ],
+    [
+      1793899120539,
+      "  -  compatibility_date: \"2026-11-04\""
+    ],
+    [
+      1793899120539,
+      "  +  compatibility_date: \"2026-11-01\""
+    ],
+    [
+      1793899120539,
+      "     vars: {"
+    ],
+    [
+      1793899120540,
+      "  -    EMAIL_FROM: \"noreply@thebuildhypothesis.com\""
+    ],
+    [
+      1793899120540,
+      "  -    LLM_MODEL: \"gpt-4o-mini\""
+    ],
+    [
+      1793899120540,
+      "  -    LLM_PROVIDER: \"openai\""
+    ],
+    [
+      1793899120540,
+      "  +    PRICING_JSON: \"{\\\"gpt-4o-mini\\\":{\\\"input\\\":0.15,\\\"output\\\":0.6,\\\"cached\\\":0.075,\\\"reference\\\":\\\"https://developers.openai.com/api/docs/models/gpt-4o-mini — checked 2026-11-05; standard USD per million text tokens\\\"},\\\"google_text_search\\\":{\\\"per1000\\\":32,\\\"reference\\\":\\\"https://developers.google.com/maps/billing-and-pricing/pricing — checked 2026-11-05; Text Search Pro SKU 4FDA-34B1-A910; USD per 1000; base tier before shared free allowance, volume tiers, discounts and tax\\\"}}\""
+    ],
+    [
+      1793899120540,
+      "  -    APP_PUBLIC_URL: \"https://ai-travel-planner-v1-cursor.thebuildhypothesis.com\""
+    ],
+    [
+      1793899120541,
+      "  +    APP_PUBLIC_URL: \"https://ai-travel-planner-v1-codex.thebuildhypothesis.com\""
+    ],
+    [
+      1793899120541,
+      "     }"
+    ],
+    [
+      1793899120541,
+      "     observability: {"
+    ],
+    [
+      1793899120541,
+      "  -    enabled: false"
+    ],
+    [
+      1793899120541,
+      "  +    enabled: true"
+    ],
+    [
+      1793899120541,
+      "       logs: {"
+    ],
+    [
+      1793899120541,
+      "  -      enabled: false"
+    ],
+    [
+      1793899120541,
+      "  +      enabled: true"
+    ],
+    [
+      1793899120542,
+      "       }"
+    ],
+    [
+      1793899120542,
+      "     }"
+    ],
+    [
+      1793899120542,
+      "   }"
+    ],
+    [
+      1793899120542,
+      "  "
+    ],
+    [
+      1793899120542,
+      "  "
+    ],
+    [
+      1793899120544,
+      "  Uploading the Worker will override the remote configuration with your local one."
+    ],
+    [
+      1793899120544,
+      ""
+    ],
+    [
+      1793899120544,
+      ""
+    ],
+    [
+      1793899120968,
+      "🌀 Building list of assets..."
+    ],
+    [
+      1793899120969,
+      "✨ Read 13 files from the assets directory /opt/buildhome/repo/dist"
+    ],
+    [
+      1793899120987,
+      "🌀 Starting asset upload..."
+    ],
+    [
+      1793899122663,
+      "🌀 Found 12 new or modified static assets to upload. Proceeding with upload..."
+    ],
+    [
+      1793899122663,
+      "+ /index.html"
+    ],
+    [
+      1793899122663,
+      "+ /assets/Admin-BrnfbzpN.js"
+    ],
+    [
+      1793899122663,
+      "+ /kyoto.jpg"
+    ],
+    [
+      1793899122663,
+      "+ /amalfi.jpg"
+    ],
+    [
+      1793899122663,
+      "+ /IMAGES.md"
+    ],
+    [
+      1793899122663,
+      "+ /assets/index-vObOis1H.css"
+    ],
+    [
+      1793899122663,
+      "+ /bali.jpg"
+    ],
+    [
+      1793899122663,
+      "+ /assets/index-CWAvqTh1.js"
+    ],
+    [
+      1793899122663,
+      "+ /assets/MapView-CIGW-MKW.css"
+    ],
+    [
+      1793899122664,
+      "+ /paris.jpg"
+    ],
+    [
+      1793899122664,
+      "+ /assets/MapView-Clptz4py.js"
+    ],
+    [
+      1793899122664,
+      "+ /lake-como.jpg"
+    ],
+    [
+      1793899123914,
+      "Uploaded 4 of 12 assets"
+    ],
+    [
+      1793899123967,
+      "Uploaded 8 of 12 assets"
+    ],
+    [
+      1793899124235,
+      "Uploaded 12 of 12 assets"
+    ],
+    [
+      1793899124235,
+      "✨ Success! Uploaded 12 files (1.57 sec)"
+    ],
+    [
+      1793899124236,
+      ""
+    ],
+    [
+      1793899124280,
+      "Total Upload: 818.70 KiB / gzip: 132.11 KiB"
+    ],
+    [
+      1793899126274,
+      "Worker Startup Time: 22 ms"
+    ],
+    [
+      1793899126275,
+      "Your Worker has access to the following bindings:"
+    ],
+    [
+      1793899126276,
+      "Binding                                                              Resource                  "
+    ],
+    [
+      1793899126276,
+      "env.EMAIL (unrestricted)                                             Send Email                "
+    ],
+    [
+      1793899126276,
+      "env.DB (bh-travel-v1-claude-codex-db)                                D1 Database               "
+    ],
+    [
+      1793899126277,
+      "env.ASSETS                                                           Assets                    "
+    ],
+    [
+      1793899126277,
+      "env.APP_PUBLIC_URL (\"https://ai-travel-planner-v1-codex.th...\")      Environment Variable      "
+    ],
+    [
+      1793899126277,
+      "env.PRICING_JSON (\"{\"gpt-4o-mini\":{\"input\":0.15,\"output\"...\")        Environment Variable      "
+    ],
+    [
+      1793899126277,
+      ""
+    ],
+    [
+      1793899126277,
+      "Uploaded ai-travel-planner-codex (5.45 sec)"
+    ],
+    [
+      1793899127319,
+      "Deployed ai-travel-planner-codex triggers (1.04 sec)"
+    ],
+    [
+      1793899127319,
+      "  ai-travel-planner-v1-codex.thebuildhypothesis.com (custom domain)"
+    ],
+    [
+      1793899127320,
+      "Current Version ID: ac6441de-7bee-4763-b852-b0273b203121"
+    ],
+    [
+      1793899127323,
+      ""
+    ],
+    [
+      1793899127323,
+      "Cloudflare collects anonymous telemetry about your usage of Wrangler. Learn more at https://github.com/cloudflare/workers-sdk/tree/main/packages/wrangler/telemetry.md"
+    ],
+    [
+      1793899127420,
+      "Success: Deploy command completed"
+    ],
+    [
+      1793899127423,
+      "Uploading to dependency cache"
+    ],
+    [
+      1793899127426,
+      "Skipping build output cache as it's not supported for your project"
     ]
   ],
   "events": [
     {
       "type": "initializing",
-      "started_on": "2026-11-05T17:09:10.517Z",
-      "ended_on": "2026-11-05T17:09:14.021Z"
+      "started_on": "2026-11-05T17:18:15.748Z",
+      "ended_on": "2026-11-05T17:18:18.222Z"
     },
     {
       "type": "cloning",
-      "started_on": "2026-11-05T17:09:14.021Z",
-      "ended_on": "2026-11-05T17:09:15.410Z"
+      "started_on": "2026-11-05T17:18:18.222Z",
+      "ended_on": "2026-11-05T17:18:20.078Z"
     },
     {
       "type": "installing_tools_and_deps",
-      "started_on": "2026-11-05T17:09:15.410Z"
+      "started_on": "2026-11-05T17:18:20.078Z",
+      "ended_on": "2026-11-05T17:18:32.772Z"
+    },
+    {
+      "type": "deploying",
+      "started_on": "2026-11-05T17:18:32.772Z"
     }
   ]
 }

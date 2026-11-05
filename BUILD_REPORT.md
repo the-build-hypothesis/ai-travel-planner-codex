@@ -1,12 +1,12 @@
 # Build and verification report — Elsewhere
 
-Generated 2026-11-05T17:17:22.938Z. Specification v1.7. All dates/times below are UTC unless noted.
+Generated 2026-11-05T17:22:47.544Z. Specification v1.7. All dates/times below are UTC unless noted.
 
 ## 1. Executive Summary
 
-Working application validated by 31 Worker integration tests, 8 real-browser tests, and live OpenAI/Google checks through the local Worker. First GitHub deployment failed at dependency installation; npm-10-compatible lockfile correction is ready for retry.
+GitHub-triggered deployment succeeded and HTTPS health matches fe5d98b. Live production verification exposed a native PBKDF2 cap; portable standard PBKDF2 fix passes 33 integration tests and is ready for deployment. Local browser suite passes 8/8 and live local OpenAI/Google checks pass.
 
-Status counts: Verified: 46; Implemented but Unverified: 6; Partial: 2; Not Started: 1. `Verified` in the matrix describes the cited executed check, often a local API test with mocked external services; it does **not** imply production verification. Code presence alone is not treated as evidence of successful execution.
+Status counts: Verified: 47; Implemented but Unverified: 6; Partial: 1; Not Started: 1. `Verified` in the matrix describes the cited executed check, often a local API test with mocked external services; it does **not** imply production verification. Code presence alone is not treated as evidence of successful execution.
 
 ## 2. Requirement-by-Requirement Status
 
@@ -54,7 +54,7 @@ Status counts: Verified: 46; Implemented but Unverified: 6; Partial: 2; Not Star
 | 9.1 | Existing Worker, project-prefixed D1 and migrations | Verified | Cloudflare operator provision and remote Wrangler migration succeeded. |
 | 9.2 | Configured transactional email integration | Implemented but Unverified | EMAIL binding declared; no domain configuration altered; actual provider send pending. |
 | 10 | Preserve administrator-managed secrets and LLM configuration | Verified | Worker metadata inspected without secret retrieval; keep_vars true; no secret-management commands used. |
-| 11 | Commit/push and GitHub-triggered Workers Builds deployment | Partial | Source not pushed at this checkpoint. Application and initial reports committed/pushed; first GitHub build failed; corrected lockfile pending retry |
+| 11 | Commit/push and GitHub-triggered Workers Builds deployment | Verified | Source not pushed at this checkpoint. GitHub push-event build 7f3a2572-2648-4fdb-b282-13ecb886a468 succeeded; HTTPS health matches commit |
 | 12 | Assigned root URL, custom domain, HTTPS and email URL | Implemented but Unverified | Wrangler custom-domain route and assigned APP_PUBLIC_URL configured; production verification pending. |
 | 13.auth | Passwords, token hashing, ownership and CSRF/security headers | Verified | Security primitives, cross-origin rejection, guest/user/admin separation and token tests passed. |
 | 13.1 | Server-side safeguards for billable API abuse | Verified | IP/account limits, input lengths, bounded output and timeouts implemented; limiter test passed. |
@@ -76,7 +76,7 @@ React 19/Vite builds a responsive browser application; a TypeScript Worker serve
 
 ## 4. How to Access and Test It
 
-Assigned URL: https://ai-travel-planner-v1-codex.thebuildhypothesis.com. Deployment status: **first GitHub build failed; corrected lockfile awaiting push**.
+Assigned URL: https://ai-travel-planner-v1-codex.thebuildhypothesis.com. Deployment status: **deployed; authentication fix awaiting push**.
 
 Local setup: `npm ci`, configure ignored `.dev.vars` using the example, `npm run build`, `npm run db:local`, then `npm run dev`. Optional Vite HMR: `npm run dev:ui`. Requires Node 22+ and local socket permissions.
 
@@ -87,13 +87,14 @@ Administrator setup is operator-controlled: after migration run `node scripts/cl
 ## 5. Tests and Verification
 
 - **passed** — `npm run typecheck` (local frontend/Worker). PROGRESS.md
-- **passed** — `npm test` (workerd/local D1; mocked external services). {"passed":31,"failed":0}. tests/app.test.ts
+- **passed** — `npm test` (workerd/local D1; mocked external services). {"passed":33,"failed":0}. tests/app.test.ts
 - **passed** — `env LD_LIBRARY_PATH=/tmp/travel-browser-libs/root/usr/lib/x86_64-linux-gnu npx playwright test` (local Worker, real Chromium desktop/mobile). {"passed":8,"failed":0}. evidence/discover-desktop.png; evidence/itinerary-mobile.png; evidence/map-desktop.png
 - **passed** — `node scripts/live-local.mjs` (local Worker, real OpenAI and Google). {"passed":3,"failed":0}. evidence/live-local.json
 - **passed** — `npx --yes npm@10.9.2 ci --ignore-scripts --no-audit --no-fund --dry-run` (Cloudflare-matching npm 10.9.2). Missing peer entry repaired by regenerating lockfile
 - **passed** — `npm run build` (Vite production bundle). PROGRESS.md
 - **passed** — `npx wrangler d1 migrations apply DB --remote` (Cloudflare D1). 0001_initial.sql: 24 commands succeeded
 - **failed** — `GitHub push-event build f153f96177827c3dc7f2accafe49d3af83304ad8` (Cloudflare Workers Builds). evidence/latest-build-log.json: npm ci missing @cloudflare/workers-types@4 optional peer
+- **failed** — `node scripts/production-smoke.mjs` (production). evidence/production-smoke.json: health passed; administrator login HTTP 500; fix prepared
 
 Mocked tests use actual workerd/local D1, but mocked OpenAI/Google/email responses. They validate application logic rather than upstream credentials or delivery. Browser verification initially required three missing libraries to be downloaded/extracted under /tmp after system install failed due unavailable sudo. All 8 cases then passed. A subsequent development rebuild loop was diagnosed and fixed by making build-info generation idempotent; browser suite passed again.
 
@@ -101,7 +102,7 @@ Mocked tests use actual workerd/local D1, but mocked OpenAI/Google/email respons
 
 Observed Git branch: `null`. Observed HEAD: `null` (the report itself will be committed afterward). Worker: `ai-travel-planner-codex`, preserved existing primary Worker. D1: `bh-travel-v1-claude-codex-db` (`9412d31e-a976-473d-8260-a20d6c20ce1e`). Migration `0001_initial.sql` applied locally and remotely. Static assets, DB, EMAIL and canonical URL are declared in Wrangler. Managed LLM settings and secret values were not changed.
 
-Deployment verification: {"status":"first GitHub build failed; corrected lockfile awaiting push","publicUrl":"https://ai-travel-planner-v1-codex.thebuildhypothesis.com","githubBuildsVerification":"failed: npm ci missing optional peer in initial npm-11 lockfile; repaired using npm 10.9.2","deployedCommitSha":null}. No deployment success is claimed at this checkpoint. GitHub Builds list initially returned no builds.
+Deployment verification: {"status":"deployed; authentication fix awaiting push","publicUrl":"https://ai-travel-planner-v1-codex.thebuildhypothesis.com","githubBuildsVerification":"success: 7f3a2572-2648-4fdb-b282-13ecb886a468","deployedCommitSha":"fe5d98b743c14051de762d08bdcb5a1e87612a9a","workerVersion":"ac6441de-7bee-4763-b852-b0273b203121"}. No deployment success is claimed at this checkpoint. GitHub Builds list initially returned no builds.
 
 ## 7. Integrations and Configuration
 
@@ -128,7 +129,7 @@ Cost evidence: {"currency":"USD","buildRunMeasuredAmount":null,"providerInvoiceA
 
 ## 10. Known Bugs, Limitations, and Incomplete Work
 
-- **medium**: First GitHub deployment failed during npm ci; corrected compatible lockfile ready. Impact: Production still serves the original placeholder. Follow-up/workaround: Push and verify new GitHub-triggered build.
+- **high**: Production native PBKDF2 cap blocks account/admin authentication in deployed fe5d98b; portable fix tested locally, pending deployment. Impact: Accounts cannot sign in until fix is deployed. Follow-up/workaround: Deploy portable hashing fix and rerun production smoke.
 - **medium**: Real transactional inbox delivery not verified. Impact: Account verification/recovery require actual email receipt. Follow-up/workaround: Verify production binding and delivery to a controlled inbox.
 - **low**: No live opening hours/availability, routed directions or authoritative billing reconciliation. Impact: Travel and cost values require independent verification. Follow-up/workaround: Use direct venue/provider checks.
 
@@ -136,7 +137,7 @@ Additional bounded limitations: English UI; last 100 user trips in collection; l
 
 ## 11. Agent Execution Summary
 
-Observed start: 2026-11-05T16:36:10Z. End: not yet ended. Measured seconds at generation: 2473; delivery limit 28,800 seconds. Implementation checkpoint; validation and deployment in progress.
+Observed start: 2026-11-05T16:36:10Z. End: not yet ended. Measured seconds at generation: 2798; delivery limit 28,800 seconds. Implementation checkpoint; validation and deployment in progress.
 
 Milestones, actual failures and approvals: see PROGRESS.md. The initial empty repository was built from scratch; a nonexistent pinned Workers-types version was corrected and installed versions locked. Sandbox network/socket restrictions required approved retries for dependency downloads, Cloudflare operations and workerd tests. Tool approvals were human interventions; no user product decision was needed. No other agents were spawned. 
 

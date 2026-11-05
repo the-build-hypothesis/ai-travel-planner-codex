@@ -920,3 +920,41 @@ describe("Scoped conversational changes", () => {
     expect(r.d.trip.itinerary[1]).toEqual(original[1]);
   });
 });
+
+describe("Production-compatible password derivation", () => {
+  it("matches native standard PBKDF2 at the full work factor", async () => {
+    const salt = "a".repeat(64),
+      password = "portable-standard-password";
+    const key = await crypto.subtle.importKey(
+      "raw",
+      new TextEncoder().encode(password),
+      "PBKDF2",
+      false,
+      ["deriveBits"],
+    );
+    const native = await crypto.subtle.deriveBits(
+      {
+        name: "PBKDF2",
+        salt: new TextEncoder().encode(salt),
+        iterations: 600000,
+        hash: "SHA-256",
+      },
+      key,
+      256,
+    );
+    const nativeHex = Array.from(new Uint8Array(native), (v) =>
+      v.toString(16).padStart(2, "0"),
+    ).join("");
+    expect(await passwordHash(password, salt)).toBe(
+      `pbkdf2:600000:${salt}:${nativeHex}`,
+    );
+  });
+  it("rejects malformed stored work factors before expensive hashing", async () => {
+    expect(
+      await passwordCheck(
+        "password",
+        `pbkdf2:999999999:${"a".repeat(64)}:${"b".repeat(64)}`,
+      ),
+    ).toBe(false);
+  });
+});

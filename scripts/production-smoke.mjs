@@ -45,7 +45,10 @@ try {
     : { username: "admin", password: "admin" };
   let login = await req("/admin/login", "POST", creds);
   adminCookie = login.cookie;
-  check("Administrator authentication", login.status === 200);
+  check("Administrator authentication", login.status === 200, {
+    status: login.status,
+    error: login.data.error || null,
+  });
   if (login.status !== 200) throw new Error("Administrator login failed");
   if (login.data.admin.must_change) {
     const blocked = await req("/admin/overview", "GET", undefined, adminCookie);

@@ -1,4 +1,6 @@
 import { HttpError, id, now, type Env, type Identity, type Row } from "./types";
+import { pbkdf2Async } from "@noble/hashes/pbkdf2.js";
+import { sha256 } from "@noble/hashes/sha2.js";
 const enc = new TextEncoder();
 export const randomToken = () =>
   Array.from(crypto.getRandomValues(new Uint8Array(32)), (v) =>
@@ -15,23 +17,38 @@ export async function passwordHash(
   salt = randomToken(),
   iterations = 600000,
 ) {
-  const key = await crypto.subtle.importKey(
-    "raw",
+  if (
+    !Number.isInteger(iterations) ||
+    iterations < 100000 ||
+    iterations > 600000
+  )
+    throw new Error("Unsupported password work factor");
+  // Cloudflare production caps native PBKDF2 at 100,000 even though local
+  // workerd accepts 600,000. Use the portable standard algorithm, retaining
+  // the full work factor and compatibility with existing native-derived hashes.
+  const bits = await pbkdf2Async(
+    sha256,
     enc.encode(password),
-    "PBKDF2",
-    false,
-    ["deriveBits"],
+    enc.encode(salt),
+    {
+      c: iterations,
+      dkLen: 32,
+      asyncTick: 8,
+    },
   );
-  const bits = await crypto.subtle.deriveBits(
-    { name: "PBKDF2", salt: enc.encode(salt), iterations, hash: "SHA-256" },
-    key,
-    256,
-  );
-  return `pbkdf2:${iterations}:${salt}:${Array.from(new Uint8Array(bits), (v) => v.toString(16).padStart(2, "0")).join("")}`;
+  return `pbkdf2:${iterations}:${salt}:${Array.from(bits, (v) => v.toString(16).padStart(2, "0")).join("")}`;
 }
 export async function passwordCheck(password: string, stored: string) {
   const parts = stored.split(":");
-  if (parts.length !== 4) return false;
+  if (
+    parts.length !== 4 ||
+    !/^[a-f0-9]{64}$/.test(parts[2]) ||
+    !/^[a-f0-9]{64}$/.test(parts[3]) ||
+    !Number.isInteger(Number(parts[1])) ||
+    Number(parts[1]) < 100000 ||
+    Number(parts[1]) > 600000
+  )
+    return false;
   const derived = await passwordHash(password, parts[2], Number(parts[1]));
   let diff = derived.length ^ stored.length;
   for (let i = 0; i < stored.length; i++)

@@ -119,7 +119,25 @@ if (cmd === "inspect") {
     headers: { Authorization: `Bearer ${c.CLOUDFLARE_API_TOKEN}` },
   });
   const d = await r.json();
-  console.log(JSON.stringify(d, null, 2));
+  const summary = {
+    at: new Date().toISOString(),
+    success: d.success,
+    builds: d.result?.map((b) => ({
+      id: b.build_uuid,
+      status: b.status,
+      outcome: b.build_outcome,
+      commit: b.build_trigger_metadata?.commit_hash,
+      source: b.build_trigger_metadata?.build_trigger_source,
+      branch: b.build_trigger_metadata?.branch,
+      createdAt: b.created_on,
+      stoppedAt: b.stopped_on,
+    })),
+  };
+  writeFileSync(
+    "evidence/github-builds.json",
+    JSON.stringify(summary, null, 2) + "\n",
+  );
+  console.log(JSON.stringify(summary, null, 2));
 } else if (cmd === "build-log") {
   const scripts = await cf("/workers/scripts");
   const worker = scripts.find((w) => w.id === c.CLOUDFLARE_WORKER_NAME);
@@ -170,8 +188,11 @@ if (cmd === "inspect") {
   );
   const hash = `pbkdf2:600000:${salt}:${Buffer.from(bits).toString("hex")}`;
   const result = await cf(`/d1/database/${db}/query`, "POST", {
-    sql: "INSERT INTO admins(id,username,password_hash,created_at) SELECT ?, 'admin', ?, ? WHERE NOT EXISTS(SELECT 1 FROM settings WHERE key='admin_bootstrapped') AND NOT EXISTS(SELECT 1 FROM admins); INSERT OR IGNORE INTO settings VALUES ('admin_bootstrapped','1');",
+    sql: "INSERT INTO admins(id,username,password_hash,created_at) SELECT ?, 'admin', ?, ? WHERE NOT EXISTS(SELECT 1 FROM settings WHERE key='admin_bootstrapped') AND NOT EXISTS(SELECT 1 FROM admins)",
     params: [crypto.randomUUID(), hash, new Date().toISOString()],
+  });
+  await cf(`/d1/database/${db}/query`, "POST", {
+    sql: "INSERT OR IGNORE INTO settings VALUES ('admin_bootstrapped','1')",
   });
   console.log(
     JSON.stringify(
