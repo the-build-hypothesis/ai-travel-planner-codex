@@ -1,0 +1,12 @@
+{
+  "gpt-4o-mini": {
+    "input": 0.15,
+    "output": 0.6,
+    "cached": 0.075,
+    "reference": "https://developers.openai.com/api/docs/models/gpt-4o-mini — checked 2026-11-05; standard USD per million text tokens"
+  },
+  "google_text_search": {
+    "per1000": 32,
+    "reference": "https://developers.google.com/maps/billing-and-pricing/pricing — checked 2026-11-05; Text Search Pro SKU 4FDA-34B1-A910; USD per 1000; base tier before shared free allowance, volume tiers, discounts and tax"
+  }
+}

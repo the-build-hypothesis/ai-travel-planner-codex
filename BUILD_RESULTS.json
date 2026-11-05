@@ -1,0 +1,572 @@
+{
+  "schemaVersion": 1,
+  "specVersion": "1.7",
+  "project": "AI Travel Planner / Elsewhere",
+  "generatedAt": "2026-11-05T17:05:34.804Z",
+  "execution": {
+    "startedAt": "2026-11-05T16:36:10Z",
+    "endedAt": null,
+    "elapsedSeconds": 1765,
+    "deliveryLimitSeconds": 28800,
+    "completionReason": "Implementation checkpoint; validation and deployment in progress",
+    "humanInterventions": [
+      "Tool approval granted for dependency installation, Cloudflare metadata/provisioning/migrations and test runtime. No manual code changes requested."
+    ]
+  },
+  "repository": {
+    "branch": null,
+    "commitSha": null,
+    "note": "Observed HEAD when report was generated; reports are necessarily committed after this observation."
+  },
+  "deployment": {
+    "status": "not deployed",
+    "publicUrl": "https://ai-travel-planner-v1-codex.thebuildhypothesis.com",
+    "githubBuildsVerification": "pending",
+    "deployedCommitSha": null
+  },
+  "requirements": [
+    {
+      "reference": "2.1",
+      "description": "Contextual conversation and persisted history",
+      "status": "Verified",
+      "evidence": [
+        "tests/app.test.ts: structured itinerary/history test; scoped modification test; mock OpenAI."
+      ]
+    },
+    {
+      "reference": "2.2",
+      "description": "Create, validate, save, reopen and delete trips",
+      "status": "Verified",
+      "evidence": [
+        "tests/app.test.ts: guest persistence and invalid input tests."
+      ]
+    },
+    {
+      "reference": "2.2.preferences",
+      "description": "Dates, duration, party, child ages, budget, pace and requirements",
+      "status": "Verified",
+      "evidence": [
+        "Trip schema tests; frontend input screens; dates are optional."
+      ]
+    },
+    {
+      "reference": "2.3",
+      "description": "Structured itinerary with practical schedule validation",
+      "status": "Verified",
+      "evidence": [
+        "Tests reject overlaps, midnight overflow, duplicate IDs and incomplete coordinates. Geographic suitability is model-generated and requires human review."
+      ]
+    },
+    {
+      "reference": "2.4.direct",
+      "description": "Direct activity add/remove/edit/reorder and optimistic concurrency",
+      "status": "Verified",
+      "evidence": [
+        "API itinerary edit test preserves unrelated days and rejects stale versions. Browser controls require browser verification."
+      ]
+    },
+    {
+      "reference": "2.4.conversational",
+      "description": "Conversational modifications preserve unrelated itinerary content",
+      "status": "Verified",
+      "evidence": [
+        "Single-day scope tests preserve unrelated days; broader change quality depends on model."
+      ]
+    },
+    {
+      "reference": "2.5",
+      "description": "Google place research and clearly labeled estimates",
+      "status": "Implemented but Unverified",
+      "evidence": [
+        "Google Pro endpoint mocked successfully; external details contain names, addresses, coordinates and Maps links; no hours/prices claimed verified."
+      ]
+    },
+    {
+      "reference": "2.6",
+      "description": "Interactive map and day-linked locations",
+      "status": "Implemented but Unverified",
+      "evidence": [
+        "Leaflet/OpenStreetMap implementation; pending browser tile/marker checks."
+      ]
+    },
+    {
+      "reference": "2.7",
+      "description": "Polished responsive accessible travel UI",
+      "status": "Implemented but Unverified",
+      "evidence": [
+        "Production build and strict frontend typecheck passed; pending real-browser visual check."
+      ]
+    },
+    {
+      "reference": "3.1",
+      "description": "Server-persisted secure guest access",
+      "status": "Verified",
+      "evidence": [
+        "Guest cookie/persistence and cross-guest tests pass."
+      ]
+    },
+    {
+      "reference": "3.2",
+      "description": "Email/password registration and case-insensitive uniqueness",
+      "status": "Verified",
+      "evidence": [
+        "Registration/migration/duplicate email test; PBKDF2 tests."
+      ]
+    },
+    {
+      "reference": "3.3",
+      "description": "Secure login/logout, persistent expiring sessions and rate limits",
+      "status": "Verified",
+      "evidence": [
+        "Session expiry, login/logout, cookie attributes and limiter tests."
+      ]
+    },
+    {
+      "reference": "3.4",
+      "description": "Registered account profile, password, trips and authorization",
+      "status": "Verified",
+      "evidence": [
+        "Profile/password and cross-user isolation tests. Production multi-device test not executed."
+      ]
+    },
+    {
+      "reference": "3.5",
+      "description": "Eligible guest-to-account migration without duplication",
+      "status": "Verified",
+      "evidence": [
+        "Registration and login migration tests; other guest trips remain isolated."
+      ]
+    },
+    {
+      "reference": "4.1",
+      "description": "Cloudflare Email Service binding and runtime sender",
+      "status": "Implemented but Unverified",
+      "evidence": [
+        "Wrangler EMAIL binding and send helper; production provider delivery not yet tested."
+      ]
+    },
+    {
+      "reference": "4.2",
+      "description": "Single-use expiring email verification and resend",
+      "status": "Verified",
+      "evidence": [
+        "Mocked delivery verification token used once; resend limits implemented."
+      ]
+    },
+    {
+      "reference": "4.3",
+      "description": "Non-enumerating 30-minute password recovery",
+      "status": "Verified",
+      "evidence": [
+        "Mocked reset success, expiry, token hash and session invalidation tests. No live inbox check."
+      ]
+    },
+    {
+      "reference": "4.4",
+      "description": "Graceful email delivery/configuration errors",
+      "status": "Verified",
+      "evidence": [
+        "Registration delivery failure and missing forgot-password binding tests; responses omit internal provider error."
+      ]
+    },
+    {
+      "reference": "5.1",
+      "description": "Separate administrative identities, sessions and authorization",
+      "status": "Verified",
+      "evidence": [
+        "Application/admin sessions cannot substitute; login limiter and expiration implemented."
+      ]
+    },
+    {
+      "reference": "5.2",
+      "description": "Bootstrap admin/admin with mandatory password change",
+      "status": "Verified",
+      "evidence": [
+        "Forced replacement and last-admin DB protection tests; one-time operator initialization marker implemented."
+      ]
+    },
+    {
+      "reference": "5.3",
+      "description": "Administrator creation/reset/disable/delete",
+      "status": "Verified",
+      "evidence": [
+        "Account lifecycle tests; DB triggers protect last active admin."
+      ]
+    },
+    {
+      "reference": "5.4",
+      "description": "Search/inspect/disable/enable/delete application users",
+      "status": "Verified",
+      "evidence": [
+        "Protected user disabling/deletion tests; paginated search and user drill-down implemented."
+      ]
+    },
+    {
+      "reference": "5.5",
+      "description": "Inspect all guest/user trips, timestamps, costs and history",
+      "status": "Verified",
+      "evidence": [
+        "Administrative trip inspection audited in test; list pagination and filters implemented."
+      ]
+    },
+    {
+      "reference": "6.1",
+      "description": "Lifetime and period overview metrics include guests",
+      "status": "Verified",
+      "evidence": [
+        "Date-filtered aggregate test includes guest AI usage and separates lifetime counts."
+      ]
+    },
+    {
+      "reference": "6.2",
+      "description": "Shared presets and custom UTC reporting range",
+      "status": "Verified",
+      "evidence": [
+        "Server date filtering and UTC normalization tests. UI presets implemented."
+      ]
+    },
+    {
+      "reference": "6.3",
+      "description": "Searchable/sortable user metrics and detail drill-down",
+      "status": "Implemented but Unverified",
+      "evidence": [
+        "Bound SQL and frontend drill-down; browser evidence pending."
+      ]
+    },
+    {
+      "reference": "6.4",
+      "description": "Trip metrics with default newest-first list",
+      "status": "Implemented but Unverified",
+      "evidence": [
+        "Paginated SQL with selected-range provider costs and trip inspection."
+      ]
+    },
+    {
+      "reference": "6.5",
+      "description": "Per-request usage attribution/status/tokens/cost/duration",
+      "status": "Verified",
+      "evidence": [
+        "OpenAI and Google mocked request usage tests; secrets never in records."
+      ]
+    },
+    {
+      "reference": "6.6",
+      "description": "Model-specific cached/input/output LLM token accounting",
+      "status": "Verified",
+      "evidence": [
+        "1000 input, 200 cached, 500 output with fixture rates gives USD 0.0029; price snapshots tested."
+      ]
+    },
+    {
+      "reference": "6.7",
+      "description": "Endpoint-specific Google Pro request accounting",
+      "status": "Verified",
+      "evidence": [
+        "One Text Search Pro fixture request at USD 32/1000 yields USD 0.032; guest/trip attribution tested."
+      ]
+    },
+    {
+      "reference": "6.8",
+      "description": "Estimated costs, historical assumptions and unattributed activity",
+      "status": "Verified",
+      "evidence": [
+        "Null unknown pricing and non-trip Google request tests; historical JSON snapshots. No invoice reconciliation."
+      ]
+    },
+    {
+      "reference": "6.9",
+      "description": "Cost/trip/user/token/Google usage visualizations",
+      "status": "Implemented but Unverified",
+      "evidence": [
+        "All five UTC day-grouped charts implemented; browser rendering pending."
+      ]
+    },
+    {
+      "reference": "6.10",
+      "description": "API failures, sanitized app errors, volume and latency",
+      "status": "Verified",
+      "evidence": [
+        "Provider failures recorded with status/duration in tests; overview SQL covers latency and failure count."
+      ]
+    },
+    {
+      "reference": "7",
+      "description": "Append-only-through-API sensitive admin audit logging",
+      "status": "Verified",
+      "evidence": [
+        "Login, account modification, user deletion and trip inspection records tested; no mutation endpoint exists."
+      ]
+    },
+    {
+      "reference": "8.1",
+      "description": "Runtime provider/model selection with no fallback",
+      "status": "Verified",
+      "evidence": [
+        "Unsupported provider/missing model tests; configured Worker metadata says openai/gpt-4o-mini."
+      ]
+    },
+    {
+      "reference": "8.2",
+      "description": "Server-side provider abstraction and normalized errors",
+      "status": "Verified",
+      "evidence": [
+        "AI adapter and Google adapter tests mock upstream HTTP; no credentials sent to frontend."
+      ]
+    },
+    {
+      "reference": "8.3",
+      "description": "Provider-independent structured validation before saving",
+      "status": "Verified",
+      "evidence": [
+        "Malformed structured result test leaves saved trip unchanged and records invalid usage."
+      ]
+    },
+    {
+      "reference": "8.4",
+      "description": "Timeouts, bounded retries, rate limits and cost reporting",
+      "status": "Verified",
+      "evidence": [
+        "Zero automatic retries; explicit user retries, 90s AI timeout, 15s Places timeout, provider 429 test."
+      ]
+    },
+    {
+      "reference": "9",
+      "description": "Cloudflare-only hosting and backend infrastructure",
+      "status": "Partial",
+      "evidence": [
+        "D1 created/migrated; Worker configuration generated; deployment not verified yet."
+      ]
+    },
+    {
+      "reference": "9.1",
+      "description": "Existing Worker, project-prefixed D1 and migrations",
+      "status": "Verified",
+      "evidence": [
+        "Cloudflare operator provision and remote Wrangler migration succeeded."
+      ]
+    },
+    {
+      "reference": "9.2",
+      "description": "Configured transactional email integration",
+      "status": "Implemented but Unverified",
+      "evidence": [
+        "EMAIL binding declared; no domain configuration altered; actual provider send pending."
+      ]
+    },
+    {
+      "reference": "10",
+      "description": "Preserve administrator-managed secrets and LLM configuration",
+      "status": "Verified",
+      "evidence": [
+        "Worker metadata inspected without secret retrieval; keep_vars true; no secret-management commands used."
+      ]
+    },
+    {
+      "reference": "11",
+      "description": "Commit/push and GitHub-triggered Workers Builds deployment",
+      "status": "Not Started",
+      "evidence": [
+        "Source not pushed at this checkpoint."
+      ]
+    },
+    {
+      "reference": "12",
+      "description": "Assigned root URL, custom domain, HTTPS and email URL",
+      "status": "Implemented but Unverified",
+      "evidence": [
+        "Wrangler custom-domain route and assigned APP_PUBLIC_URL configured; production verification pending."
+      ]
+    },
+    {
+      "reference": "13.auth",
+      "description": "Passwords, token hashing, ownership and CSRF/security headers",
+      "status": "Verified",
+      "evidence": [
+        "Security primitives, cross-origin rejection, guest/user/admin separation and token tests passed."
+      ]
+    },
+    {
+      "reference": "13.1",
+      "description": "Server-side safeguards for billable API abuse",
+      "status": "Verified",
+      "evidence": [
+        "IP/account limits, input lengths, bounded output and timeouts implemented; limiter test passed."
+      ]
+    },
+    {
+      "reference": "13.2",
+      "description": "Server-side administrative protection and confirmations",
+      "status": "Verified",
+      "evidence": [
+        "Forced change/identity isolation/confirmation/last-admin tests."
+      ]
+    },
+    {
+      "reference": "14.1",
+      "description": "Application automated tests",
+      "status": "Verified",
+      "evidence": [
+        "tests/app.test.ts: trip creation/validation/generation/edit/persistence/history/guest/migration executed."
+      ]
+    },
+    {
+      "reference": "14.2",
+      "description": "Authentication automated tests",
+      "status": "Verified",
+      "evidence": [
+        "tests/app.test.ts: account verification/recovery, session expiry, changes, cross-user and administrative lifecycle executed."
+      ]
+    },
+    {
+      "reference": "14.3",
+      "description": "Usage/cost automated tests",
+      "status": "Verified",
+      "evidence": [
+        "Tests cover costs/attribution, guests, unattributed Google activity, UTC and aggregates."
+      ]
+    },
+    {
+      "reference": "14.4",
+      "description": "Provider deterministic mocked integration tests",
+      "status": "Verified",
+      "evidence": [
+        "Configured selection, structured output rejection, 429 and Google endpoint mocks."
+      ]
+    },
+    {
+      "reference": "14.5",
+      "description": "Production end-to-end verification",
+      "status": "Not Started",
+      "evidence": [
+        "Not deployed at checkpoint."
+      ]
+    },
+    {
+      "reference": "17",
+      "description": "Continuous concise progress/evidence log",
+      "status": "Verified",
+      "evidence": [
+        "PROGRESS.md updated at milestones."
+      ]
+    },
+    {
+      "reference": "18.1",
+      "description": "Architecture/setup/security/deployment documentation",
+      "status": "Verified",
+      "evidence": [
+        "README.md exists with setup commands and limitations."
+      ]
+    },
+    {
+      "reference": "18.3",
+      "description": "Detailed machine-readable and human-readable build reports",
+      "status": "Verified",
+      "evidence": [
+        "This generator writes both root artifacts; JSON structure/counts validated below."
+      ]
+    }
+  ],
+  "checks": [
+    {
+      "command": "npm run typecheck",
+      "environment": "local",
+      "result": "passed",
+      "evidence": "PROGRESS.md: 2026-11-05T16:58Z"
+    },
+    {
+      "command": "npm run build",
+      "environment": "local production bundle",
+      "result": "passed",
+      "evidence": "PROGRESS.md: Vite 7.3.7 successful build"
+    },
+    {
+      "command": "npm test",
+      "environment": "workerd/local D1; mocked external services",
+      "result": "passed",
+      "counts": {
+        "passed": 30,
+        "failed": 0
+      },
+      "evidence": "tests/app.test.ts; PROGRESS.md"
+    },
+    {
+      "command": "bash -c source cloudflare.env; npx wrangler d1 migrations apply DB --remote",
+      "environment": "Cloudflare remote D1",
+      "result": "passed",
+      "evidence": "0001_initial.sql: 24 commands succeeded"
+    },
+    {
+      "command": "npm run db:local",
+      "environment": "local D1",
+      "result": "passed",
+      "evidence": "0001_initial.sql: 24 commands succeeded"
+    }
+  ],
+  "integrations": {
+    "llm": {
+      "provider": "openai",
+      "model": "gpt-4o-mini",
+      "status": "mocked integration verified; live call pending"
+    },
+    "googlePlaces": {
+      "status": "mocked request/SKU accounting verified; live call pending"
+    },
+    "maps": {
+      "status": "implemented, browser verification pending"
+    },
+    "cloudflareEmail": {
+      "binding": "EMAIL",
+      "senderVariable": "EMAIL_FROM",
+      "status": "mocked token/delivery workflows verified; live delivery pending"
+    }
+  },
+  "infrastructure": {
+    "resources": [
+      {
+        "type": "D1",
+        "name": "bh-travel-v1-claude-codex-db",
+        "id": "9412d31e-a976-473d-8260-a20d6c20ce1e",
+        "action": "created"
+      },
+      {
+        "type": "Worker",
+        "name": "ai-travel-planner-codex",
+        "action": "existing; generated configuration targets this Worker"
+      }
+    ],
+    "migrations": {
+      "0001_initial.sql": "applied locally and remotely"
+    }
+  },
+  "issues": [
+    {
+      "severity": "medium",
+      "description": "Live service and deployment verification pending at this checkpoint.",
+      "impact": "Production operation not yet demonstrated.",
+      "followUp": "Complete live API, browser, deployment and build verification."
+    },
+    {
+      "severity": "low",
+      "description": "No authoritative billing reconciliation, live opening hours, availability or routing.",
+      "impact": "Travel and cost values remain clearly labeled estimates.",
+      "followUp": "Verify travel details with operators; reconcile provider invoices separately."
+    }
+  ],
+  "costs": {
+    "currency": "USD",
+    "buildRunMeasuredAmount": null,
+    "providerInvoiceAmount": null,
+    "source": "No authoritative billing data available",
+    "estimatedTestFixtureLlmAmount": 0.0029,
+    "estimatedTestFixtureGoogleAmount": 0.032
+  },
+  "summary": {
+    "counts": {
+      "Verified": 43,
+      "Implemented but Unverified": 9,
+      "Partial": 1,
+      "Not Started": 2
+    },
+    "outcome": "Application implemented and 30 local mocked-service integration tests passed; production deployment and live integrations pending."
+  }
+}

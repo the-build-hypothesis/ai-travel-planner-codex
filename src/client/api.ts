@@ -1,0 +1,3 @@
+export async function api(path:string,method='GET',data?:unknown){const response=await fetch('/api'+path,{method,credentials:'same-origin',headers:method==='GET'?{}:{'Content-Type':'application/json'},body:data===undefined?undefined:JSON.stringify(data)});const result:any=await response.json();if(!response.ok)throw new Error(result.error||'Request failed');return result}
+export const money=(n:number|null|undefined,currency='USD')=>n==null?'Unknown':new Intl.NumberFormat('en-US',{style:'currency',currency,maximumFractionDigits:2}).format(n);
+export const date=(value:string)=>new Date(value).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'});

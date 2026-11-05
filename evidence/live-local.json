@@ -1,0 +1,25 @@
+{
+  "at": "2026-11-05T17:06:59.985Z",
+  "environment": "Local Worker, real external provider calls",
+  "results": [
+    {
+      "check": "live OpenAI itinerary generation",
+      "status": 200,
+      "passed": true,
+      "durationMs": 6064,
+      "days": 2,
+      "error": null
+    },
+    {
+      "check": "live response persisted with conversation",
+      "passed": true
+    },
+    {
+      "check": "live Google Places search",
+      "status": 200,
+      "passed": true,
+      "places": 8,
+      "error": null
+    }
+  ]
+}
