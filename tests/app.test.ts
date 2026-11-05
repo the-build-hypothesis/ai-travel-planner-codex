@@ -793,6 +793,14 @@ describe("Administrator separation and monitoring", () => {
     ).toBe(200);
     const usage = await env.DB.prepare("SELECT * FROM usage").first<any>();
     expect(usage.user_id).toBeNull();
+    const afterDeletion = await request(
+      "/admin/overview",
+      "GET",
+      undefined,
+      cookie,
+    );
+    expect(afterDeletion.d.costs.unattributed_requests).toBe(1);
+    expect(afterDeletion.d.costs.unattributed_cost).toBeCloseTo(0.0029);
     expect(
       (await request("/admin/audit", "GET", undefined, cookie)).d.rows.some(
         (r: any) => r.action === "trip.inspect",

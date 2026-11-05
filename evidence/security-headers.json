@@ -1,29 +1,29 @@
 {
-  "at": "2026-11-05T17:44:14.392Z",
+  "at": "2026-11-05T17:47:32.913Z",
   "results": [
     {
       "path": "/",
       "status": 200,
       "headers": {
-        "content-security-policy": null,
-        "x-frame-options": null,
-        "x-content-type-options": null,
-        "strict-transport-security": null,
-        "referrer-policy": null
+        "content-security-policy": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://images.unsplash.com https://*.tile.openstreetmap.org; connect-src 'self' https://*.tile.openstreetmap.org; font-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'",
+        "x-frame-options": "DENY",
+        "x-content-type-options": "nosniff",
+        "strict-transport-security": "max-age=31536000",
+        "referrer-policy": "no-referrer"
       },
-      "passed": false
+      "passed": true
     },
     {
       "path": "/admin",
       "status": 200,
       "headers": {
-        "content-security-policy": null,
-        "x-frame-options": null,
-        "x-content-type-options": null,
-        "strict-transport-security": null,
-        "referrer-policy": null
+        "content-security-policy": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://images.unsplash.com https://*.tile.openstreetmap.org; connect-src 'self' https://*.tile.openstreetmap.org; font-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'",
+        "x-frame-options": "DENY",
+        "x-content-type-options": "nosniff",
+        "strict-transport-security": "max-age=31536000",
+        "referrer-policy": "no-referrer"
       },
-      "passed": false
+      "passed": true
     },
     {
       "path": "/api/health",

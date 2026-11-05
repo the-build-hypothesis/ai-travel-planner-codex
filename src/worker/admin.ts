@@ -59,7 +59,7 @@ export async function adminApi(
           .bind(start, end, start, end)
           .first(),
         env.DB.prepare(
-          "SELECT SUM(CASE WHEN provider='openai' THEN cost ELSE 0 END) llm,SUM(CASE WHEN provider='google' THEN cost ELSE 0 END) places,SUM(cost) total,COUNT(*) requests,SUM(CASE WHEN cost IS NULL THEN 1 ELSE 0 END) unknown_costs,SUM(CASE WHEN status<>'success' THEN 1 ELSE 0 END) failures,AVG(duration_ms) latency,SUM(input_tokens) input_tokens,SUM(output_tokens) output_tokens,SUM(CASE WHEN trip_id IS NULL THEN cost ELSE 0 END) unattributed_cost,SUM(CASE WHEN trip_id IS NULL THEN 1 ELSE 0 END) unattributed_requests FROM usage WHERE timestamp BETWEEN ? AND ?",
+          "SELECT SUM(CASE WHEN provider='openai' THEN cost ELSE 0 END) llm,SUM(CASE WHEN provider='google' THEN cost ELSE 0 END) places,SUM(cost) total,COUNT(*) requests,SUM(CASE WHEN cost IS NULL THEN 1 ELSE 0 END) unknown_costs,SUM(CASE WHEN status<>'success' THEN 1 ELSE 0 END) failures,AVG(duration_ms) latency,SUM(input_tokens) input_tokens,SUM(output_tokens) output_tokens,SUM(CASE WHEN trip_id IS NULL OR NOT EXISTS(SELECT 1 FROM trips existing_trip WHERE existing_trip.id=usage.trip_id) THEN cost ELSE 0 END) unattributed_cost,SUM(CASE WHEN trip_id IS NULL OR NOT EXISTS(SELECT 1 FROM trips existing_trip WHERE existing_trip.id=usage.trip_id) THEN 1 ELSE 0 END) unattributed_requests FROM usage WHERE timestamp BETWEEN ? AND ?",
         )
           .bind(start, end)
           .first(),

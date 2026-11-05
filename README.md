@@ -49,6 +49,8 @@ Verification/reset tokens are random and stored only as hashes. Verification exp
 
 Writes require a matching Origin and JSON content type. Security headers include CSP, HSTS on HTTPS, frame restrictions and no-sniff. D1 statements bind values. Server-side limits cover authentication, guest creation, trip creation, AI/Places use, and request sizes. AI calls have a 90-second timeout and 10,000 output-token cap; Places a 15-second timeout. There are zero automatic retries to avoid duplicate billable requests; users can retry explicitly. IP and account limits both protect billable APIs. This is application-level protection, not a substitute for Cloudflare WAF or provider spend limits.
 
+API responses set headers in the Worker. Static HTML/assets receive the same protections through `public/_headers`, because Cloudflare serves non-API assets before invoking the Worker. Unattributed costs include both requests without a trip and historical requests whose trip has since been deleted; immutable historical UUIDs and price assumptions remain in usage records.
+
 ## Administrator bootstrap
 
 The separate `/admin` login uses a separate table and cookie (`travel_admin`), with 8-hour sessions and stricter limits. There is no public administrator registration. After the remote schema migration, an authorized operator runs:

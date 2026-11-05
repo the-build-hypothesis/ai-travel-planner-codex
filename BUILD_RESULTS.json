@@ -2,11 +2,11 @@
   "schemaVersion": 1,
   "specVersion": "1.7",
   "project": "AI Travel Planner / Elsewhere",
-  "generatedAt": "2026-11-05T17:45:37.631Z",
+  "generatedAt": "2026-11-05T17:52:32.419Z",
   "execution": {
     "startedAt": "2026-11-05T16:36:10Z",
     "endedAt": null,
-    "elapsedSeconds": 4168,
+    "elapsedSeconds": 4582,
     "deliveryLimitSeconds": 28800,
     "completionReason": "Application implementation complete; final handoff and deployment provenance verification. Controlled inbox verification remains an external review step.",
     "humanInterventions": [
@@ -21,8 +21,8 @@
   "deployment": {
     "status": "deployed and production-verified",
     "publicUrl": "https://ai-travel-planner-v1-codex.thebuildhypothesis.com",
-    "githubBuildsVerification": "success: b6bd4d7e-0bc8-4390-afb8-b901986e3915",
-    "deployedCommitSha": "8928130856c9c6c2cf08b3f6816b62d053a5e594",
+    "githubBuildsVerification": "success: 5067c791-0bde-432a-b53c-a329d63b3e8c",
+    "deployedCommitSha": "c0081f919268fac3394c326ff20e0c91fc78f511",
     "verifiedSmokeCommitSha": "8928130856c9c6c2cf08b3f6816b62d053a5e594",
     "buildSource": "push_event"
   },
@@ -368,7 +368,7 @@
       "description": "Commit/push and GitHub-triggered Workers Builds deployment",
       "status": "Verified",
       "evidence": [
-        "GitHub push-event build b6bd4d7e-0bc8-4390-afb8-b901986e3915 succeeded for 8928130856c9c6c2cf08b3f6816b62d053a5e594. HTTPS health matches application commit. evidence/github-builds.json; evidence/production-smoke.json"
+        "GitHub push-event build 5067c791-0bde-432a-b53c-a329d63b3e8c succeeded for c0081f919268fac3394c326ff20e0c91fc78f511. HTTPS health matches application commit. evidence/github-builds.json; evidence/production-smoke.json"
       ]
     },
     {
@@ -382,9 +382,9 @@
     {
       "reference": "13.auth",
       "description": "Passwords, token hashing, ownership and CSRF/security headers",
-      "status": "Partial",
+      "status": "Verified",
       "evidence": [
-        "Authentication/ownership/CSRF tests pass. Explicit production HTTP check found HTML headers absent while API headers are present; public/_headers fix implemented and awaiting deployed verification. evidence/security-headers-before-fix.json"
+        "API authentication/isolation/token/CSRF tests pass; actual production HTML, admin HTML and API responses each carry CSP, frame protection, no-sniff, HSTS and referrer headers. evidence/security-headers.json"
       ]
     },
     {
@@ -484,7 +484,7 @@
         "failed": 0,
         "skipped": 0
       },
-      "evidence": "evidence/unit-summary.json; tests/app.test.ts; full final run 33.11 seconds"
+      "evidence": "evidence/unit-summary.json; tests/app.test.ts; final run 33.34 seconds"
     },
     {
       "command": "env LD_LIBRARY_PATH=/tmp/travel-browser-libs/root/usr/lib/x86_64-linux-gnu npx playwright test",
@@ -591,10 +591,10 @@
     {
       "procedure": "Production HTML/admin/API security headers",
       "environment": "production HTTP",
-      "result": "failed",
+      "result": "passed",
       "counts": {
-        "passed": 1,
-        "failed": 2
+        "passed": 3,
+        "failed": 0
       },
       "evidence": "evidence/security-headers.json"
     }
@@ -644,12 +644,6 @@
     }
   },
   "issues": [
-    {
-      "severity": "high",
-      "description": "Static HTML does not yet carry the intended security headers; API responses do.",
-      "impact": "HTML is missing CSP, frame, HSTS and referrer protections at this checkpoint.",
-      "followUp": "Deploy public/_headers and rerun the production HTTP and browser checks."
-    },
     {
       "severity": "medium",
       "description": "Actual verification/reset email inbox receipt and production link consumption were not verified.",
@@ -702,9 +696,9 @@
   },
   "summary": {
     "counts": {
-      "Verified": 53,
-      "Partial": 2
+      "Verified": 54,
+      "Partial": 1
     },
-    "outcome": "Elsewhere is implemented, deployed through the existing GitHub-connected Cloudflare Worker, and usable at the assigned HTTPS URL. 39 Worker integration tests, 8 local and 8 production desktop/mobile browser cases, 22 live production smoke checks and 16 authenticated admin browser checks passed. Transactional verification/reset sends were accepted without recorded email failures; actual inbox receipt and production link consumption remain unverified. Deployment fields identify the last observed verified build at report generation. Static HTML header protection is being repaired and will be verified before final handoff."
+    "outcome": "Elsewhere is implemented, deployed through the existing GitHub-connected Cloudflare Worker, and usable at the assigned HTTPS URL. 39 Worker integration tests, 8 local and 8 production desktop/mobile browser cases, 22 live production smoke checks and 16 authenticated admin browser checks passed. Transactional verification/reset sends were accepted without recorded email failures; actual inbox receipt and production link consumption remain unverified. Deployment fields identify the last observed verified build at report generation."
   }
 }

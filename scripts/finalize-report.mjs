@@ -264,7 +264,7 @@ state.checks.find((c) => c.command === "npm test").counts = {
   skipped: 0,
 };
 state.checks.find((c) => c.command === "npm test").evidence =
-  "evidence/unit-summary.json; tests/app.test.ts; full final run 33.11 seconds";
+  `evidence/unit-summary.json; tests/app.test.ts; final run ${unit.durationSeconds} seconds`;
 state.checks.forEach((c) => {
   if (c.result === "failed" && c.command?.includes("f153f"))
     c.evidence =

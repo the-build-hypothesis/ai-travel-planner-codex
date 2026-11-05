@@ -1,12 +1,12 @@
 # Build and verification report — Elsewhere
 
-Generated 2026-11-05T17:45:37.631Z. Specification v1.7. All dates/times below are UTC unless noted.
+Generated 2026-11-05T17:52:32.419Z. Specification v1.7. All dates/times below are UTC unless noted.
 
 ## 1. Executive Summary
 
-Elsewhere is implemented, deployed through the existing GitHub-connected Cloudflare Worker, and usable at the assigned HTTPS URL. 39 Worker integration tests, 8 local and 8 production desktop/mobile browser cases, 22 live production smoke checks and 16 authenticated admin browser checks passed. Transactional verification/reset sends were accepted without recorded email failures; actual inbox receipt and production link consumption remain unverified. Deployment fields identify the last observed verified build at report generation. Static HTML header protection is being repaired and will be verified before final handoff.
+Elsewhere is implemented, deployed through the existing GitHub-connected Cloudflare Worker, and usable at the assigned HTTPS URL. 39 Worker integration tests, 8 local and 8 production desktop/mobile browser cases, 22 live production smoke checks and 16 authenticated admin browser checks passed. Transactional verification/reset sends were accepted without recorded email failures; actual inbox receipt and production link consumption remain unverified. Deployment fields identify the last observed verified build at report generation.
 
-Status counts: Verified: 53; Partial: 2. `Verified` in the matrix describes the cited executed check, often a local API test with mocked external services; it does **not** imply production verification. Code presence alone is not treated as evidence of successful execution.
+Status counts: Verified: 54; Partial: 1. `Verified` in the matrix describes the cited executed check, often a local API test with mocked external services; it does **not** imply production verification. Code presence alone is not treated as evidence of successful execution.
 
 ## 2. Requirement-by-Requirement Status
 
@@ -54,9 +54,9 @@ Status counts: Verified: 53; Partial: 2. `Verified` in the matrix describes the 
 | 9.1 | Existing Worker, project-prefixed D1 and migrations | Verified | Cloudflare operator provision and remote Wrangler migration succeeded. |
 | 9.2 | Configured transactional email integration | Verified | EMAIL binding deployed without changing domain email settings; verification/reset requests exercised, no email-delivery errors recorded. Actual inbox receipt unverified. |
 | 10 | Preserve administrator-managed secrets and LLM configuration | Verified | Worker metadata inspected without secret retrieval; keep_vars true; no secret-management commands used. |
-| 11 | Commit/push and GitHub-triggered Workers Builds deployment | Verified | GitHub push-event build b6bd4d7e-0bc8-4390-afb8-b901986e3915 succeeded for 8928130856c9c6c2cf08b3f6816b62d053a5e594. HTTPS health matches application commit. evidence/github-builds.json; evidence/production-smoke.json |
+| 11 | Commit/push and GitHub-triggered Workers Builds deployment | Verified | GitHub push-event build 5067c791-0bde-432a-b53c-a329d63b3e8c succeeded for c0081f919268fac3394c326ff20e0c91fc78f511. HTTPS health matches application commit. evidence/github-builds.json; evidence/production-smoke.json |
 | 12 | Assigned root URL, custom domain, HTTPS and email URL | Verified | Assigned root HTTPS URL serves frontend, API, /admin and deep links in production browser tests; build logs confirm custom-domain association. Managed canonical URL corrected to assigned hostname. |
-| 13.auth | Passwords, token hashing, ownership and CSRF/security headers | Partial | Authentication/ownership/CSRF tests pass. Explicit production HTTP check found HTML headers absent while API headers are present; public/_headers fix implemented and awaiting deployed verification. evidence/security-headers-before-fix.json |
+| 13.auth | Passwords, token hashing, ownership and CSRF/security headers | Verified | API authentication/isolation/token/CSRF tests pass; actual production HTML, admin HTML and API responses each carry CSP, frame protection, no-sniff, HSTS and referrer headers. evidence/security-headers.json |
 | 13.1 | Server-side safeguards for billable API abuse | Verified | IP/account limits, input lengths, bounded output and timeouts implemented; limiter test passed. |
 | 13.2 | Server-side administrative protection and confirmations | Verified | Forced change/identity isolation/confirmation/last-admin tests. |
 | 14.1 | Application automated tests | Verified | 39 Worker API tests passed; desktop/mobile browser flows exercise create/edit/reorder/map/delete/persistence. evidence/unit-summary.json |
@@ -87,7 +87,7 @@ Administrator setup is operator-controlled: after migration run `node scripts/cl
 ## 5. Tests and Verification
 
 - **passed** — `npm run typecheck` (local frontend/Worker). PROGRESS.md
-- **passed** — `npm test` (workerd/local D1; mocked external services). {"passed":39,"failed":0,"skipped":0}. evidence/unit-summary.json; tests/app.test.ts; full final run 33.11 seconds
+- **passed** — `npm test` (workerd/local D1; mocked external services). {"passed":39,"failed":0,"skipped":0}. evidence/unit-summary.json; tests/app.test.ts; final run 33.34 seconds
 - **passed** — `env LD_LIBRARY_PATH=/tmp/travel-browser-libs/root/usr/lib/x86_64-linux-gnu npx playwright test` (local Worker, real Chromium desktop/mobile). {"passed":8,"failed":0}. evidence/discover-desktop.png; evidence/itinerary-mobile.png; evidence/map-desktop.png
 - **passed** — `node scripts/live-local.mjs` (local Worker, real OpenAI and Google). {"passed":3,"failed":0}. evidence/live-local.json
 - **passed** — `npx --yes npm@10.9.2 ci --ignore-scripts --no-audit --no-fund --dry-run` (Cloudflare-matching npm 10.9.2). Missing peer entry repaired by regenerating lockfile
@@ -101,7 +101,7 @@ Administrator setup is operator-controlled: after migration run `node scripts/cl
 - **blocked** — `Receive and consume verification/reset links in a controlled inbox` (production). No controlled mailbox/recipient access was available. Mocked token consumption passes; provider send accepted.
 - **skipped** — `Real multi-device account access across separate physical devices` (production). No physical second device; API ownership, sessions and server persistence tested.
 - **passed** — `node scripts/production-smoke.mjs` (production HTTPS; actual OpenAI/Google/Cloudflare email). {"passed":22,"failed":0}. evidence/production-smoke.json
-- **failed** — `Production HTML/admin/API security headers` (production HTTP). {"passed":1,"failed":2}. evidence/security-headers.json
+- **passed** — `Production HTML/admin/API security headers` (production HTTP). {"passed":3,"failed":0}. evidence/security-headers.json
 
 Mocked tests use actual workerd/local D1, but mocked OpenAI/Google/email responses. They validate application logic rather than upstream credentials or delivery. Latest production smoke and authenticated admin walkthrough passed on commit 8928130856c9c6c2cf08b3f6816b62d053a5e594. Initial failed runs are preserved as historical evidence and do not describe current behavior. Desktop/mobile tests use real Chromium, actual Worker APIs and OSM tiles; API unit tests mock upstream providers. Email provider acceptance is distinct from inbox receipt. Subsequent report-only commits can redeploy identical application source; deployment fields record the last observed verified commit at report generation.
 
@@ -109,7 +109,7 @@ Mocked tests use actual workerd/local D1, but mocked OpenAI/Google/email respons
 
 Observed Git branch: `null`. Observed HEAD: `null` (the report itself will be committed afterward). Worker: `ai-travel-planner-codex`, preserved existing primary Worker. D1: `bh-travel-v1-claude-codex-db` (`9412d31e-a976-473d-8260-a20d6c20ce1e`). Migration `0001_initial.sql` applied locally and remotely. Static assets, DB, EMAIL and canonical URL are declared in Wrangler. Managed LLM settings and secret values were not changed.
 
-Deployment verification: {"status":"deployed and production-verified","publicUrl":"https://ai-travel-planner-v1-codex.thebuildhypothesis.com","githubBuildsVerification":"success: b6bd4d7e-0bc8-4390-afb8-b901986e3915","deployedCommitSha":"8928130856c9c6c2cf08b3f6816b62d053a5e594","verifiedSmokeCommitSha":"8928130856c9c6c2cf08b3f6816b62d053a5e594","buildSource":"push_event"}. No direct Wrangler production deploy was needed: all successful production versions used the pre-existing GitHub-triggered Workers Builds pipeline. Custom domain and HTTPS work. D1 migration applied before deployment. keep_vars preserved administrator-managed settings and secrets; only the assigned canonical URL and new pricing assumptions were supplied.
+Deployment verification: {"status":"deployed and production-verified","publicUrl":"https://ai-travel-planner-v1-codex.thebuildhypothesis.com","githubBuildsVerification":"success: 5067c791-0bde-432a-b53c-a329d63b3e8c","deployedCommitSha":"c0081f919268fac3394c326ff20e0c91fc78f511","verifiedSmokeCommitSha":"8928130856c9c6c2cf08b3f6816b62d053a5e594","buildSource":"push_event"}. No direct Wrangler production deploy was needed: all successful production versions used the pre-existing GitHub-triggered Workers Builds pipeline. Custom domain and HTTPS work. D1 migration applied before deployment. keep_vars preserved administrator-managed settings and secrets; only the assigned canonical URL and new pricing assumptions were supplied.
 
 ## 7. Integrations and Configuration
 
@@ -136,7 +136,6 @@ Cost evidence: {"currency":"USD","buildRunMeasuredAmount":null,"providerInvoiceA
 
 ## 10. Known Bugs, Limitations, and Incomplete Work
 
-- **high**: Static HTML does not yet carry the intended security headers; API responses do. Impact: HTML is missing CSP, frame, HSTS and referrer protections at this checkpoint. Follow-up/workaround: Deploy public/_headers and rerun the production HTTP and browser checks.
 - **medium**: Actual verification/reset email inbox receipt and production link consumption were not verified. Impact: Email sends are accepted and mock token workflows pass, but delivery to a human-controlled mailbox remains an independent review step. Follow-up/workaround: Register with an inbox you control, consume verification link, request password reset and verify invalidation on a second browser.
 - **low**: No physical second-device account walkthrough. Impact: Cross-device behavior relies on verified server-side sessions/persistence but was not physically exercised. Follow-up/workaround: Log into the same account on a second device.
 - **low**: AI suggestions, coordinates and activity costs are unverified estimates; map lines are not routed directions. Impact: Schedules and details need local checking; no reservations/live availability/hours guarantees. Follow-up/workaround: Verify venues and travel times before booking.
@@ -147,7 +146,7 @@ Additional bounded limitations: English UI; last 100 user trips in collection; l
 
 ## 11. Agent Execution Summary
 
-Observed start: 2026-11-05T16:36:10Z. End: not yet ended. Measured seconds at generation: 4168; delivery limit 28,800 seconds. Application implementation complete; final handoff and deployment provenance verification. Controlled inbox verification remains an external review step..
+Observed start: 2026-11-05T16:36:10Z. End: not yet ended. Measured seconds at generation: 4582; delivery limit 28,800 seconds. Application implementation complete; final handoff and deployment provenance verification. Controlled inbox verification remains an external review step..
 
 Milestones, actual failures and approvals: see PROGRESS.md. The initial empty repository was built from scratch; a nonexistent pinned Workers-types version was corrected and installed versions locked. Sandbox network/socket restrictions required approved retries for dependency downloads, Cloudflare operations and workerd tests. Tool approvals were human interventions; no user product decision was needed. No other agents were spawned. Production verification found and repaired a local/production cryptography discrepancy. All failures and retries are retained in PROGRESS.md and evidence. Final handoff is inside the eight-hour limit. endedAt remains null while final source/report publication and verification are in progress; elapsedSeconds is measured at report generation, not a fabricated final runtime.
 

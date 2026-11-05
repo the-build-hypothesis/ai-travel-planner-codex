@@ -5,6 +5,7 @@ const origin = JSON.parse(readFileSync("wrangler.jsonc", "utf8")).vars
 const creds = JSON.parse(readFileSync(".admin-credentials", "utf8"));
 const browser = await chromium.launch();
 const results = [];
+const health = await (await fetch(origin + "/api/health")).json();
 for (const viewport of [
   { name: "desktop", width: 1440, height: 1080 },
   { name: "mobile", width: 390, height: 844 },
@@ -31,11 +32,19 @@ for (const viewport of [
     const overflow = await page.evaluate(
       () => document.documentElement.scrollWidth > innerWidth,
     );
+    const overview = await (
+      await context.request.get(origin + "/api/admin/overview")
+    ).json();
     results.push({
       check: `${viewport.name} administrator dashboard/charts`,
-      passed: !overflow && errors.length === 0,
+      passed:
+        !overflow &&
+        errors.length === 0 &&
+        overview.costs.unattributed_requests > 0 &&
+        overview.costs.unattributed_cost > 0,
       overflow,
       errors,
+      accounting: overview.costs,
     });
     for (const [label, heading] of [
       ["Travelers", "Your travel community."],
@@ -64,7 +73,7 @@ for (const viewport of [
     results.push({
       check: `${viewport.name} browser verification`,
       passed: false,
-      error: e.message,
+      error: e.message.replaceAll(creds.password, "[redacted]"),
     });
   }
   await context.close();
@@ -75,6 +84,7 @@ writeFileSync(
   JSON.stringify(
     {
       at: new Date().toISOString(),
+      build: health.build,
       environment:
         "production real Chromium, no traces or credential screenshots",
       results,
