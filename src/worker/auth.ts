@@ -16,6 +16,9 @@ import {
   setCookie,
   validatePassword,
 } from "./security";
+// A fixed non-account value gives unknown identities the same one-hash work
+// factor as existing accounts. It is not an account credential.
+const dummyHash = `pbkdf2:600000:${"a".repeat(64)}:${"b".repeat(64)}`;
 async function sendToken(env: Env, user: Row, purpose: "verify" | "reset") {
   if (!env.EMAIL || !env.EMAIL_FROM || !env.APP_PUBLIC_URL)
     throw new HttpError(
@@ -139,7 +142,7 @@ export async function auth(
       .first<Row>();
     const valid = await passwordCheck(
       b.password,
-      user?.password_hash || (await passwordHash("dummy-password-for-timing")),
+      user?.password_hash || dummyHash,
     );
     if (!user || !valid || user.disabled)
       throw new HttpError(401, "Email or password is incorrect");
@@ -279,7 +282,12 @@ export async function auth(
     );
   }
   if (path === "/api/admin/login" && req.method === "POST") {
-    await limit(env, `admin-login:${ip}`, 5, 900);
+    try {
+      await limit(env, `admin-login:${ip}`, 5, 900);
+    } catch (e) {
+      await audit(env, null, "admin.login", null, "rate_limited");
+      throw e;
+    }
     const b = await body(req);
     if (
       typeof b.username !== "string" ||
@@ -287,18 +295,23 @@ export async function auth(
       b.password.length > 128
     )
       throw new HttpError(400, "Invalid credentials");
-    await limit(
-      env,
-      `admin-username:${await hash(b.username.toLowerCase())}`,
-      8,
-      900,
-    );
+    try {
+      await limit(
+        env,
+        `admin-username:${await hash(b.username.toLowerCase())}`,
+        8,
+        900,
+      );
+    } catch (e) {
+      await audit(env, null, "admin.login", null, "rate_limited");
+      throw e;
+    }
     const admin = await env.DB.prepare("SELECT * FROM admins WHERE username=?")
       .bind(b.username)
       .first<Row>();
     const valid = await passwordCheck(
       b.password,
-      admin?.password_hash || (await passwordHash("dummy-admin-timing")),
+      admin?.password_hash || dummyHash,
     );
     await audit(
       env,

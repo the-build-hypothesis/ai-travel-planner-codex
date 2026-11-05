@@ -7,6 +7,7 @@ import {
   hash,
   randomToken,
   limit,
+  newSession,
 } from "../src/worker/security";
 import { calculateCost, modelPricing, searchPlaces } from "../src/worker/ai";
 import { DaysSchema } from "../src/worker/schema";
@@ -956,5 +957,244 @@ describe("Production-compatible password derivation", () => {
         `pbkdf2:999999999:${"a".repeat(64)}:${"b".repeat(64)}`,
       ),
     ).toBe(false);
+  });
+});
+
+describe("Upstream response edge cases", () => {
+  it("marks invalid JSON against the exact billable request and preserves the trip", async () => {
+    const g = await guest(),
+      t = await create(g.cookie);
+    fetchMock
+      .get("https://api.openai.com")
+      .intercept({ path: "/v1/responses", method: "POST" })
+      .reply(200, {
+        status: "completed",
+        output: [{ content: [{ type: "output_text", text: "not JSON" }] }],
+        usage: { input_tokens: 100, output_tokens: 20 },
+      });
+    const r = await request(
+      "/trips/" + t.d.trip.id + "/chat",
+      "POST",
+      { content: "Plan Kyoto", version: 0 },
+      g.cookie,
+    );
+    expect(r.r.status).toBe(502);
+    const usage = await env.DB.prepare("SELECT * FROM usage WHERE trip_id=?")
+      .bind(t.d.trip.id)
+      .first<any>();
+    expect(usage.status).toBe("invalid");
+    expect(usage.input_tokens).toBe(100);
+    expect(usage.cost).toBeGreaterThan(0);
+    expect(
+      (await request("/trips/" + t.d.trip.id, "GET", undefined, g.cookie)).d
+        .trip.version,
+    ).toBe(0);
+  });
+  it("sends exactly the configured model identifier to OpenAI without substituting one", async () => {
+    const g = await guest(),
+      t = await create(g.cookie);
+    fetchMock
+      .get("https://api.openai.com")
+      .intercept({
+        path: "/v1/responses",
+        method: "POST",
+        body: (raw: string) =>
+          JSON.parse(raw).model === "runtime-selected-model",
+      })
+      .reply(200, {
+        status: "completed",
+        output: [
+          {
+            content: [
+              {
+                type: "output_text",
+                text: JSON.stringify({
+                  message: "Ready",
+                  title: "Kyoto",
+                  destination: "Kyoto",
+                  days: [day],
+                }),
+              },
+            ],
+          },
+        ],
+        usage: { input_tokens: 100, output_tokens: 20 },
+      });
+    const r = await request(
+      "/trips/" + t.d.trip.id + "/chat",
+      "POST",
+      { content: "Plan Kyoto", version: 0 },
+      g.cookie,
+      { ...e, LLM_MODEL: "runtime-selected-model" },
+    );
+    expect(r.r.status).toBe(200);
+    const usage = await env.DB.prepare("SELECT * FROM usage WHERE trip_id=?")
+      .bind(t.d.trip.id)
+      .first<any>();
+    expect(usage.model).toBe("runtime-selected-model");
+    expect(usage.cost).toBeNull();
+  });
+  it("rejects incomplete output while recording reported billable usage", async () => {
+    const g = await guest(),
+      t = await create(g.cookie);
+    fetchMock
+      .get("https://api.openai.com")
+      .intercept({ path: "/v1/responses", method: "POST" })
+      .reply(200, {
+        status: "incomplete",
+        output: [],
+        usage: { input_tokens: 150, output_tokens: 50 },
+      });
+    expect(
+      (
+        await request(
+          "/trips/" + t.d.trip.id + "/chat",
+          "POST",
+          { content: "Plan Kyoto", version: 0 },
+          g.cookie,
+        )
+      ).r.status,
+    ).toBe(502);
+    const usage = await env.DB.prepare("SELECT * FROM usage WHERE trip_id=?")
+      .bind(t.d.trip.id)
+      .first<any>();
+    expect(usage.status).toBe("incomplete");
+    expect(usage.output_tokens).toBe(50);
+  });
+  it("returns the same invalid-login message for unknown and existing accounts", async () => {
+    const g = await guest();
+    await request(
+      "/auth/register",
+      "POST",
+      {
+        name: "Traveler",
+        email: "known@example.com",
+        password: "long-secure-password",
+      },
+      g.cookie,
+      emailEnv(),
+    );
+    const a = await request("/auth/login", "POST", {
+        email: "known@example.com",
+        password: "wrong-password",
+      }),
+      b = await request("/auth/login", "POST", {
+        email: "unknown@example.com",
+        password: "wrong-password",
+      });
+    expect(a.r.status).toBe(401);
+    expect(a.d).toEqual(b.d);
+  });
+});
+
+describe("Administrative reporting detail and pagination", () => {
+  it("filters and paginates users/trips and attributes period costs to the selected user", async () => {
+    const time = new Date().toISOString(),
+      pw = await passwordHash("report-admin-password");
+    await env.DB.prepare(
+      "INSERT INTO admins(id,username,password_hash,must_change,created_at) VALUES (?,?,?,?,?)",
+    )
+      .bind("report-admin", "report-admin", pw, 0, time)
+      .run();
+    const a = await request("/admin/login", "POST", {
+      username: "report-admin",
+      password: "report-admin-password",
+    });
+    await env.DB.prepare(
+      "INSERT INTO users(id,email,name,password_hash,created_at) VALUES (?,?,?,?,?)",
+    )
+      .bind("report-user", "report@example.com", "Report Traveler", pw, time)
+      .run();
+    await env.DB.batch(
+      Array.from({ length: 26 }, (_, i) =>
+        env.DB.prepare(
+          "INSERT INTO trips(id,user_id,title,destination,preferences,created_at,updated_at) VALUES (?,?,?,?,?,?,?)",
+        ).bind(
+          `report-trip-${i}`,
+          "report-user",
+          `Report trip ${i}`,
+          "Kyoto",
+          "{}",
+          time,
+          time,
+        ),
+      ),
+    );
+    const cookie =
+      "travel_session=" + (await newSession(e, "report-user", null));
+    mockAI();
+    expect(
+      (
+        await request(
+          "/trips/report-trip-0/chat",
+          "POST",
+          { content: "Plan Kyoto", version: 0 },
+          cookie,
+        )
+      ).r.status,
+    ).toBe(200);
+    const g = await guest();
+    await create(g.cookie);
+    const users = await request(
+      "/admin/users?q=report&sort=cost",
+      "GET",
+      undefined,
+      a.cookie,
+    );
+    expect(users.d.rows).toHaveLength(1);
+    expect(users.d.rows[0].trips).toBe(26);
+    expect(users.d.rows[0].llm_cost).toBeCloseTo(0.0029);
+    expect(users.d.rows[0].combined_cost).toBeCloseTo(0.0029);
+    expect(users.d.rows[0]).not.toHaveProperty("password_hash");
+    const p1 = await request(
+        "/admin/trips?user=report-user&page=1",
+        "GET",
+        undefined,
+        a.cookie,
+      ),
+      p2 = await request(
+        "/admin/trips?user=report-user&page=2",
+        "GET",
+        undefined,
+        a.cookie,
+      );
+    expect(p1.d.rows).toHaveLength(25);
+    expect(p2.d.rows).toHaveLength(1);
+    expect(
+      [...p1.d.rows, ...p2.d.rows].every(
+        (r: any) => r.user_id === "report-user",
+      ),
+    ).toBe(true);
+    const history = await request(
+      "/admin/usage?user=report-user",
+      "GET",
+      undefined,
+      a.cookie,
+    );
+    expect(history.d.rows).toHaveLength(1);
+    expect(history.d.rows[0].trip_id).toBe("report-trip-0");
+    const old = await request(
+      "/admin/users?q=report&start=2000-01-01&end=2000-01-02",
+      "GET",
+      undefined,
+      a.cookie,
+    );
+    expect(old.d.rows[0].trips).toBe(26);
+    expect(old.d.rows[0].combined_cost).toBeNull();
+  });
+});
+
+describe("Administrative abuse audit", () => {
+  it("records rate-limited administrator attempts without credentials", async () => {
+    for (let i = 0; i < 5; i++) await limit(e, "admin-login:local", 5, 900);
+    const r = await request("/admin/login", "POST", {
+      username: "admin",
+      password: "never-log-this-password",
+    });
+    expect(r.r.status).toBe(429);
+    const records = (await env.DB.prepare("SELECT * FROM audit").all()).results;
+    expect(records).toHaveLength(1);
+    expect(records[0].outcome).toBe("rate_limited");
+    expect(JSON.stringify(records)).not.toContain("never-log-this-password");
   });
 });

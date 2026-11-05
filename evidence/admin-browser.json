@@ -1,0 +1,76 @@
+{
+  "at": "2026-11-05T17:27:13.694Z",
+  "environment": "production real Chromium, no traces or credential screenshots",
+  "results": [
+    {
+      "check": "desktop administrator dashboard/charts",
+      "passed": true,
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "check": "desktop Travelers screen",
+      "passed": true
+    },
+    {
+      "check": "desktop All journeys screen",
+      "passed": true
+    },
+    {
+      "check": "desktop Usage & costs screen",
+      "passed": true
+    },
+    {
+      "check": "desktop Administrators screen",
+      "passed": true
+    },
+    {
+      "check": "desktop Audit trail screen",
+      "passed": true
+    },
+    {
+      "check": "desktop period selector and custom inputs",
+      "passed": true
+    },
+    {
+      "check": "desktop admin logout",
+      "passed": true
+    },
+    {
+      "check": "mobile administrator dashboard/charts",
+      "passed": true,
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "check": "mobile Travelers screen",
+      "passed": true
+    },
+    {
+      "check": "mobile All journeys screen",
+      "passed": true
+    },
+    {
+      "check": "mobile Usage & costs screen",
+      "passed": true
+    },
+    {
+      "check": "mobile Administrators screen",
+      "passed": true
+    },
+    {
+      "check": "mobile Audit trail screen",
+      "passed": true
+    },
+    {
+      "check": "mobile period selector and custom inputs",
+      "passed": true
+    },
+    {
+      "check": "mobile admin logout",
+      "passed": true
+    }
+  ],
+  "passed": 16,
+  "failed": 0
+}

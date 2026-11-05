@@ -342,7 +342,7 @@ const requirements = definitions.map(
     description,
     status,
     ...state.requirements?.[reference],
-    evidence: [evidence, ...(state.requirements?.[reference]?.evidence || [])],
+    evidence: state.requirements?.[reference]?.evidence || [evidence],
   }),
 );
 const checks = state.checks || [

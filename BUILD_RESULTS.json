@@ -2,13 +2,13 @@
   "schemaVersion": 1,
   "specVersion": "1.7",
   "project": "AI Travel Planner / Elsewhere",
-  "generatedAt": "2026-11-05T17:22:47.544Z",
+  "generatedAt": "2026-11-05T17:40:10.165Z",
   "execution": {
     "startedAt": "2026-11-05T16:36:10Z",
     "endedAt": null,
-    "elapsedSeconds": 2798,
+    "elapsedSeconds": 3840,
     "deliveryLimitSeconds": 28800,
-    "completionReason": "Implementation checkpoint; validation and deployment in progress",
+    "completionReason": "Application implementation complete; final handoff and deployment provenance verification. Controlled inbox verification remains an external review step.",
     "humanInterventions": [
       "Tool approval granted for dependency installation, Cloudflare metadata/provisioning/migrations and test runtime. No manual code changes requested."
     ]
@@ -19,11 +19,12 @@
     "note": "Observed HEAD when report was generated; reports are necessarily committed after this observation."
   },
   "deployment": {
-    "status": "deployed; authentication fix awaiting push",
+    "status": "deployed and production-verified",
     "publicUrl": "https://ai-travel-planner-v1-codex.thebuildhypothesis.com",
-    "githubBuildsVerification": "success: 7f3a2572-2648-4fdb-b282-13ecb886a468",
-    "deployedCommitSha": "fe5d98b743c14051de762d08bdcb5a1e87612a9a",
-    "workerVersion": "ac6441de-7bee-4763-b852-b0273b203121"
+    "githubBuildsVerification": "success: 2f2596a9-a849-4ccd-bbe9-115f5d78dcfb",
+    "deployedCommitSha": "18776084f0efbd62c577519ce7663b39fd3a3734",
+    "verifiedSmokeCommitSha": "18776084f0efbd62c577519ce7663b39fd3a3734",
+    "buildSource": "push_event"
   },
   "requirements": [
     {
@@ -31,7 +32,7 @@
       "description": "Contextual conversation and persisted history",
       "status": "Verified",
       "evidence": [
-        "tests/app.test.ts: structured itinerary/history test; scoped modification test; mock OpenAI."
+        "39 workerd tests cover structured conversation/history and scoped changes; production smoke passes generation, edit and save/reopen with 4 messages. evidence/production-smoke.json"
       ]
     },
     {
@@ -39,7 +40,7 @@
       "description": "Create, validate, save, reopen and delete trips",
       "status": "Verified",
       "evidence": [
-        "tests/app.test.ts: guest persistence and invalid input tests."
+        "39 API tests and 8 browser cases exercise create/save/reopen/delete, preferences and validation; production smoke verifies guest persistence."
       ]
     },
     {
@@ -63,7 +64,7 @@
       "description": "Direct activity add/remove/edit/reorder and optimistic concurrency",
       "status": "Verified",
       "evidence": [
-        "API itinerary edit test preserves unrelated days and rejects stale versions. Browser controls require browser verification."
+        "Expanded desktop/mobile browser cases verify activity add/edit, rejected overlap retains inputs, reorder, removal and trip deletion. API tests reject stale versions. e2e/planner.spec.ts"
       ]
     },
     {
@@ -71,7 +72,7 @@
       "description": "Conversational modifications preserve unrelated itinerary content",
       "status": "Verified",
       "evidence": [
-        "Single-day scope tests preserve unrelated days; broader change quality depends on model."
+        "Production OpenAI edit of day one preserved day two byte-for-byte; mock test deliberately rewrites unrelated day and server preserves it. evidence/production-smoke.json"
       ]
     },
     {
@@ -79,8 +80,7 @@
       "description": "Google place research and clearly labeled estimates",
       "status": "Verified",
       "evidence": [
-        "Google Pro endpoint mocked successfully; external details contain names, addresses, coordinates and Maps links; no hours/prices claimed verified.",
-        "evidence/live-local.json: 8 real Places results"
+        "Live production Google Places returned 8 real results; evidence/production-smoke.json. Provider prices/hours are never represented as verified."
       ]
     },
     {
@@ -88,8 +88,7 @@
       "description": "Interactive map and day-linked locations",
       "status": "Verified",
       "evidence": [
-        "Leaflet/OpenStreetMap implementation; pending browser tile/marker checks.",
-        "8 desktop/mobile browser tests include map marker/popup; evidence/map-desktop.png"
+        "Desktop/mobile Chromium verifies real loaded OSM tiles, activity marker and popup; filtered day numbering now uses full-trip day order. evidence/map-desktop.png; e2e/planner.spec.ts"
       ]
     },
     {
@@ -97,8 +96,7 @@
       "description": "Polished responsive accessible travel UI",
       "status": "Verified",
       "evidence": [
-        "Production build and strict frontend typecheck passed; pending real-browser visual check.",
-        "8 browser tests; desktop/mobile screenshots; no horizontal overflow"
+        "8 local and 8 production real-browser cases passed at desktop/mobile viewports; home, itinerary, map and admin screenshots under evidence/. No horizontal overflow."
       ]
     },
     {
@@ -106,7 +104,7 @@
       "description": "Server-persisted secure guest access",
       "status": "Verified",
       "evidence": [
-        "Guest cookie/persistence and cross-guest tests pass."
+        "Production guest cookie is Secure/HttpOnly and server-side persistence/isolation checks pass; unit tests verify expiry and authorization."
       ]
     },
     {
@@ -114,7 +112,7 @@
       "description": "Email/password registration and case-insensitive uniqueness",
       "status": "Verified",
       "evidence": [
-        "Registration/migration/duplicate email test; PBKDF2 tests."
+        "Production registration succeeds; 600,000-iteration standard portable PBKDF2 matches native reference in tests; case-insensitive uniqueness tested."
       ]
     },
     {
@@ -122,7 +120,7 @@
       "description": "Secure login/logout, persistent expiring sessions and rate limits",
       "status": "Verified",
       "evidence": [
-        "Session expiry, login/logout, cookie attributes and limiter tests."
+        "Production user login/logout and session invalidation pass; negative cookie/expiry/rate tests in tests/app.test.ts."
       ]
     },
     {
@@ -138,15 +136,15 @@
       "description": "Eligible guest-to-account migration without duplication",
       "status": "Verified",
       "evidence": [
-        "Registration and login migration tests; other guest trips remain isolated."
+        "Production registration moves the owned guest trip to the account; mocked registration/login tests verify isolation and idempotency."
       ]
     },
     {
       "reference": "4.1",
       "description": "Cloudflare Email Service binding and runtime sender",
-      "status": "Implemented but Unverified",
+      "status": "Verified",
       "evidence": [
-        "Wrangler EMAIL binding and send helper; production provider delivery not yet tested."
+        "Deployed EMAIL binding and EMAIL_FROM preserved; production registration returns emailStatus sent; no email error rows after verification/reset requests. evidence/production-smoke.json; evidence/production-database.json. Inbox receipt not checked."
       ]
     },
     {
@@ -154,7 +152,7 @@
       "description": "Single-use expiring email verification and resend",
       "status": "Verified",
       "evidence": [
-        "Mocked delivery verification token used once; resend limits implemented."
+        "Mocked end-to-end token validation verifies expiry/hash/single-use behavior. Production verification email accepted by binding. Human inbox receipt and production verification-link consumption are unverified."
       ]
     },
     {
@@ -162,7 +160,7 @@
       "description": "Non-enumerating 30-minute password recovery",
       "status": "Verified",
       "evidence": [
-        "Mocked reset success, expiry, token hash and session invalidation tests. No live inbox check."
+        "Mocked reset validates 30-minute expiry, hashed one-use tokens and session invalidation. Production recovery request returned generic success and no recorded delivery failure. Inbox link consumption unverified."
       ]
     },
     {
@@ -178,7 +176,7 @@
       "description": "Separate administrative identities, sessions and authorization",
       "status": "Verified",
       "evidence": [
-        "Application/admin sessions cannot substitute; login limiter and expiration implemented."
+        "Production admin authentication/logout and protected inspection pass; application/admin session separation tested."
       ]
     },
     {
@@ -186,7 +184,7 @@
       "description": "Bootstrap admin/admin with mandatory password change",
       "status": "Verified",
       "evidence": [
-        "Forced replacement and last-admin DB protection tests; one-time operator initialization marker implemented."
+        "Production initial admin/admin required password replacement and denied overview until changed; replacement succeeded; D1 reports one durable marker and zero admins awaiting change. Current credentials exist only in ignored local operator file."
       ]
     },
     {
@@ -194,7 +192,7 @@
       "description": "Administrator creation/reset/disable/delete",
       "status": "Verified",
       "evidence": [
-        "Account lifecycle tests; DB triggers protect last active admin."
+        "Admin create/reset/disable/delete tests pass; production last-active-admin disabling rejected; admin UI rendered on desktop/mobile."
       ]
     },
     {
@@ -202,7 +200,7 @@
       "description": "Search/inspect/disable/enable/delete application users",
       "status": "Verified",
       "evidence": [
-        "Protected user disabling/deletion tests; paginated search and user drill-down implemented."
+        "Mocked account disabling/deletion and positive searchable/sortable user cost drill-down tests; production test account deleted by confirmed admin API."
       ]
     },
     {
@@ -210,7 +208,7 @@
       "description": "Inspect all guest/user trips, timestamps, costs and history",
       "status": "Verified",
       "evidence": [
-        "Administrative trip inspection audited in test; list pagination and filters implemented."
+        "Production trip inspection and audit pass; 26-trip pagination/user filtering test passes; admin trip screen verified on both viewports."
       ]
     },
     {
@@ -218,7 +216,7 @@
       "description": "Lifetime and period overview metrics include guests",
       "status": "Verified",
       "evidence": [
-        "Date-filtered aggregate test includes guest AI usage and separates lifetime counts."
+        "Production overview matches 3 actual external calls and USD 0.0327926 estimate; 39 tests cover lifetime/period distinctions and guests."
       ]
     },
     {
@@ -226,23 +224,23 @@
       "description": "Shared presets and custom UTC reporting range",
       "status": "Verified",
       "evidence": [
-        "Server date filtering and UTC normalization tests. UI presets implemented."
+        "Production historical custom range excludes API activity while preserving lifetime counts; admin browser tests exercise preset and custom UTC inputs."
       ]
     },
     {
       "reference": "6.3",
       "description": "Searchable/sortable user metrics and detail drill-down",
-      "status": "Implemented but Unverified",
+      "status": "Verified",
       "evidence": [
-        "Bound SQL and frontend drill-down; browser evidence pending."
+        "Positive API test verifies email search, cost sort, 26-trip per-user drill-down, usage history, date costs and exclusion of password hashes. Authenticated user screen browser checks pass."
       ]
     },
     {
       "reference": "6.4",
       "description": "Trip metrics with default newest-first list",
-      "status": "Implemented but Unverified",
+      "status": "Verified",
       "evidence": [
-        "Paginated SQL with selected-range provider costs and trip inspection."
+        "Positive API pagination verifies 25 records on page one and one on page two, user filters and cost attribution; production trip inspection passes."
       ]
     },
     {
@@ -280,9 +278,9 @@
     {
       "reference": "6.9",
       "description": "Cost/trip/user/token/Google usage visualizations",
-      "status": "Implemented but Unverified",
+      "status": "Verified",
       "evidence": [
-        "All five UTC day-grouped charts implemented; browser rendering pending."
+        "Authenticated production desktop/mobile browser walkthrough renders all five charts. Cost chart scaling refined after visual inspection. evidence/production-admin-desktop.png"
       ]
     },
     {
@@ -298,7 +296,7 @@
       "description": "Append-only-through-API sensitive admin audit logging",
       "status": "Verified",
       "evidence": [
-        "Login, account modification, user deletion and trip inspection records tested; no mutation endpoint exists."
+        "Production sensitive actions/trip access appear in audit; tests verify rate-limited login audit without credential leakage, admin lifecycle, user deletion and separation."
       ]
     },
     {
@@ -306,7 +304,7 @@
       "description": "Runtime provider/model selection with no fallback",
       "status": "Verified",
       "evidence": [
-        "Unsupported provider/missing model tests; configured Worker metadata says openai/gpt-4o-mini."
+        "Production metadata and actual usage records show openai/gpt-4o-mini. Mock request-body matcher proves arbitrary runtime model sent unchanged, with unknown price null and no fallback."
       ]
     },
     {
@@ -322,7 +320,7 @@
       "description": "Provider-independent structured validation before saving",
       "status": "Verified",
       "evidence": [
-        "Malformed structured result test leaves saved trip unchanged and records invalid usage."
+        "Tests cover invalid schema, malformed JSON, incomplete responses and persisted token billing; invalid usage is updated by exact request ID while saved trip is preserved."
       ]
     },
     {
@@ -336,9 +334,9 @@
     {
       "reference": "9",
       "description": "Cloudflare-only hosting and backend infrastructure",
-      "status": "Partial",
+      "status": "Verified",
       "evidence": [
-        "D1 created/migrated; Worker configuration generated; deployment not verified yet."
+        "Existing Worker, Cloudflare D1, Workers Assets and Email binding deployed by GitHub Builds. No external backend hosting/storage."
       ]
     },
     {
@@ -352,9 +350,9 @@
     {
       "reference": "9.2",
       "description": "Configured transactional email integration",
-      "status": "Implemented but Unverified",
+      "status": "Verified",
       "evidence": [
-        "EMAIL binding declared; no domain configuration altered; actual provider send pending."
+        "EMAIL binding deployed without changing domain email settings; verification/reset requests exercised, no email-delivery errors recorded. Actual inbox receipt unverified."
       ]
     },
     {
@@ -370,16 +368,15 @@
       "description": "Commit/push and GitHub-triggered Workers Builds deployment",
       "status": "Verified",
       "evidence": [
-        "Source not pushed at this checkpoint.",
-        "GitHub push-event build 7f3a2572-2648-4fdb-b282-13ecb886a468 succeeded; HTTPS health matches commit"
+        "GitHub push-event build 2f2596a9-a849-4ccd-bbe9-115f5d78dcfb succeeded for 18776084f0efbd62c577519ce7663b39fd3a3734. HTTPS health matches application commit. evidence/github-builds.json; evidence/production-smoke.json"
       ]
     },
     {
       "reference": "12",
       "description": "Assigned root URL, custom domain, HTTPS and email URL",
-      "status": "Implemented but Unverified",
+      "status": "Verified",
       "evidence": [
-        "Wrangler custom-domain route and assigned APP_PUBLIC_URL configured; production verification pending."
+        "Assigned root HTTPS URL serves frontend, API, /admin and deep links in production browser tests; build logs confirm custom-domain association. Managed canonical URL corrected to assigned hostname."
       ]
     },
     {
@@ -411,7 +408,7 @@
       "description": "Application automated tests",
       "status": "Verified",
       "evidence": [
-        "tests/app.test.ts: trip creation/validation/generation/edit/persistence/history/guest/migration executed."
+        "39 Worker API tests passed; desktop/mobile browser flows exercise create/edit/reorder/map/delete/persistence. evidence/unit-summary.json"
       ]
     },
     {
@@ -419,7 +416,7 @@
       "description": "Authentication automated tests",
       "status": "Verified",
       "evidence": [
-        "tests/app.test.ts: account verification/recovery, session expiry, changes, cross-user and administrative lifecycle executed."
+        "39 API tests cover required auth flows; production smoke verifies user/admin login, forced initial change, migration, cookies and logout; inbox link workflows remain mocked."
       ]
     },
     {
@@ -427,7 +424,7 @@
       "description": "Usage/cost automated tests",
       "status": "Verified",
       "evidence": [
-        "Tests cover costs/attribution, guests, unattributed Google activity, UTC and aggregates."
+        "39 tests cover costs, user/guest/trip/unattributed attribution, UTC filters and paginated drill-down. Production usage and aggregate costs match reported token records."
       ]
     },
     {
@@ -435,15 +432,15 @@
       "description": "Provider deterministic mocked integration tests",
       "status": "Verified",
       "evidence": [
-        "Configured selection, structured output rejection, 429 and Google endpoint mocks."
+        "Deterministic mocked provider tests exercise exact configured model, no fallback, invalid JSON/schema, incomplete response and 429. Live production OpenAI and Google requests also pass."
       ]
     },
     {
       "reference": "14.5",
       "description": "Production end-to-end verification",
-      "status": "Not Started",
+      "status": "Partial",
       "evidence": [
-        "Not deployed at checkpoint."
+        "24 live production checks plus 8 public browser cases and 16 admin browser checks pass. Actual email inbox receipt/link consumption and real multi-device account access were not executed; cross-browser ownership and server persistence were verified."
       ]
     },
     {
@@ -483,10 +480,11 @@
       "environment": "workerd/local D1; mocked external services",
       "result": "passed",
       "counts": {
-        "passed": 33,
-        "failed": 0
+        "passed": 39,
+        "failed": 0,
+        "skipped": 0
       },
-      "evidence": "tests/app.test.ts"
+      "evidence": "evidence/unit-summary.json; tests/app.test.ts; full final run 33.11 seconds"
     },
     {
       "command": "env LD_LIBRARY_PATH=/tmp/travel-browser-libs/root/usr/lib/x86_64-linux-gnu npx playwright test",
@@ -530,31 +528,91 @@
       "command": "GitHub push-event build f153f96177827c3dc7f2accafe49d3af83304ad8",
       "environment": "Cloudflare Workers Builds",
       "result": "failed",
-      "evidence": "evidence/latest-build-log.json: npm ci missing @cloudflare/workers-types@4 optional peer"
+      "evidence": "evidence/first-build-failure.json: original lock failure, resolved by later builds"
+    },
+    {
+      "procedure": "Initial production authentication check",
+      "environment": "production before portable PBKDF2 fix",
+      "result": "failed",
+      "counts": {
+        "passed": 1,
+        "failed": 2
+      },
+      "evidence": "evidence/first-production-failure.json; resolved by 1877608 and successful subsequent smoke"
+    },
+    {
+      "command": "env TEST_BASE_URL=https://ai-travel-planner-v1-codex.thebuildhypothesis.com LD_LIBRARY_PATH=/tmp/travel-browser-libs/root/usr/lib/x86_64-linux-gnu npx playwright test",
+      "environment": "production Chromium desktop/mobile",
+      "result": "passed",
+      "counts": {
+        "passed": 8,
+        "failed": 0
+      },
+      "evidence": "PROGRESS.md; screenshots under evidence/"
+    },
+    {
+      "command": "env LD_LIBRARY_PATH=/tmp/travel-browser-libs/root/usr/lib/x86_64-linux-gnu node scripts/admin-browser.mjs",
+      "environment": "production authenticated Chromium desktop/mobile; no credential traces",
+      "result": "passed",
+      "counts": {
+        "passed": 16,
+        "failed": 0
+      },
+      "evidence": "evidence/admin-browser.json"
+    },
+    {
+      "command": "node scripts/cloudflare.mjs verification",
+      "environment": "production D1 aggregate-only queries",
+      "result": "passed",
+      "evidence": "evidence/production-database.json: completed bootstrap, retained usage, no email errors"
+    },
+    {
+      "procedure": "Receive and consume verification/reset links in a controlled inbox",
+      "environment": "production",
+      "result": "blocked",
+      "evidence": "No controlled mailbox/recipient access was available. Mocked token consumption passes; provider send accepted."
+    },
+    {
+      "procedure": "Real multi-device account access across separate physical devices",
+      "environment": "production",
+      "result": "skipped",
+      "evidence": "No physical second device; API ownership, sessions and server persistence tested."
     },
     {
       "command": "node scripts/production-smoke.mjs",
-      "environment": "production",
-      "result": "failed",
-      "evidence": "evidence/production-smoke.json: health passed; administrator login HTTP 500; fix prepared"
+      "environment": "production HTTPS; actual OpenAI/Google/Cloudflare email",
+      "result": "passed",
+      "counts": {
+        "passed": 24,
+        "failed": 0
+      },
+      "evidence": "evidence/production-smoke.json"
     }
   ],
   "integrations": {
     "llm": {
       "provider": "openai",
       "model": "gpt-4o-mini",
-      "status": "live local integration passed; production pending"
+      "status": "Verified actual production generation and editing",
+      "evidence": "evidence/production-smoke.json",
+      "modelChanged": false
     },
     "googlePlaces": {
-      "status": "live local integration passed: 8 results"
+      "status": "Verified actual production Text Search Pro: 8 places",
+      "endpoint": "places:searchText",
+      "pricingSku": "4FDA-34B1-A910",
+      "evidence": "evidence/production-smoke.json"
     },
     "maps": {
-      "status": "browser marker/popup verified on desktop and mobile"
+      "status": "Verified real Chromium map tiles, markers and popups on desktop/mobile",
+      "evidence": "e2e/planner.spec.ts; evidence/map-desktop.png"
     },
     "cloudflareEmail": {
       "binding": "EMAIL",
       "senderVariable": "EMAIL_FROM",
-      "status": "mocked delivery/token tests passed; production pending"
+      "status": "Production send accepted; mocked verification/reset consumption verified; inbox receipt unverified",
+      "inboxReceiptVerified": false,
+      "evidence": "evidence/production-smoke.json; evidence/production-database.json"
     }
   },
   "infrastructure": {
@@ -577,39 +635,60 @@
   },
   "issues": [
     {
-      "severity": "high",
-      "description": "Production native PBKDF2 cap blocks account/admin authentication in deployed fe5d98b; portable fix tested locally, pending deployment.",
-      "impact": "Accounts cannot sign in until fix is deployed.",
-      "followUp": "Deploy portable hashing fix and rerun production smoke."
-    },
-    {
       "severity": "medium",
-      "description": "Real transactional inbox delivery not verified.",
-      "impact": "Account verification/recovery require actual email receipt.",
-      "followUp": "Verify production binding and delivery to a controlled inbox."
+      "description": "Actual verification/reset email inbox receipt and production link consumption were not verified.",
+      "impact": "Email sends are accepted and mock token workflows pass, but delivery to a human-controlled mailbox remains an independent review step.",
+      "followUp": "Register with an inbox you control, consume verification link, request password reset and verify invalidation on a second browser."
     },
     {
       "severity": "low",
-      "description": "No live opening hours/availability, routed directions or authoritative billing reconciliation.",
-      "impact": "Travel and cost values require independent verification.",
-      "followUp": "Use direct venue/provider checks."
+      "description": "No physical second-device account walkthrough.",
+      "impact": "Cross-device behavior relies on verified server-side sessions/persistence but was not physically exercised.",
+      "followUp": "Log into the same account on a second device."
+    },
+    {
+      "severity": "low",
+      "description": "AI suggestions, coordinates and activity costs are unverified estimates; map lines are not routed directions.",
+      "impact": "Schedules and details need local checking; no reservations/live availability/hours guarantees.",
+      "followUp": "Verify venues and travel times before booking."
+    },
+    {
+      "severity": "low",
+      "description": "Cost estimates use base reference rates before free allowances, discounts, tax or authoritative invoice reconciliation.",
+      "impact": "Estimated USD 0.0327926 for observed production calls is not an actual billed total.",
+      "followUp": "Reconcile against provider billing independently."
+    },
+    {
+      "severity": "low",
+      "description": "Bounded product scope: English UI, latest 100 trips, recent 16 conversation messages, UTC day chart buckets; no MFA.",
+      "impact": "Long histories and short-period chart detail are limited; administrator MFA is absent.",
+      "followUp": "Add full trip pagination, finer report buckets and MFA as operational needs grow."
     }
   ],
   "costs": {
     "currency": "USD",
     "buildRunMeasuredAmount": null,
     "providerInvoiceAmount": null,
-    "source": "No authoritative billing data available",
+    "source": "Provider-reported usage recorded by deployed application; no authoritative billing reconciliation",
     "estimatedTestFixtureLlmAmount": 0.0029,
-    "estimatedTestFixtureGoogleAmount": 0.032
+    "estimatedTestFixtureGoogleAmount": 0.032,
+    "productionMeasuredUsage": {
+      "llmCalls": 2,
+      "inputTokens": 1420,
+      "outputTokens": 966,
+      "cachedTokens": 0,
+      "googlePlacesCalls": 1
+    },
+    "productionEstimatedLlmAmount": 0.0007926,
+    "productionEstimatedPlacesAmount": 0.032,
+    "productionEstimatedCombinedAmount": 0.0327926,
+    "localLiveIntegrationCosts": null
   },
   "summary": {
     "counts": {
-      "Verified": 47,
-      "Implemented but Unverified": 6,
-      "Partial": 1,
-      "Not Started": 1
+      "Verified": 54,
+      "Partial": 1
     },
-    "outcome": "GitHub-triggered deployment succeeded and HTTPS health matches fe5d98b. Live production verification exposed a native PBKDF2 cap; portable standard PBKDF2 fix passes 33 integration tests and is ready for deployment. Local browser suite passes 8/8 and live local OpenAI/Google checks pass."
+    "outcome": "Elsewhere is implemented, deployed through the existing GitHub-connected Cloudflare Worker, and usable at the assigned HTTPS URL. 39 Worker integration tests, 8 local and 8 production desktop/mobile browser cases, 24 live production smoke checks and 16 authenticated admin browser checks passed. Transactional verification/reset sends were accepted without recorded email failures; actual inbox receipt and production link consumption remain unverified. Deployment fields identify the last observed verified build at report generation."
   }
 }

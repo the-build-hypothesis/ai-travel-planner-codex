@@ -201,6 +201,30 @@ if (cmd === "inspect") {
       2,
     ),
   );
+} else if (cmd === "verification") {
+  const db = JSON.parse(readFileSync("wrangler.jsonc", "utf8")).d1_databases[0]
+    .database_id;
+  const queries = {
+    counts:
+      "SELECT (SELECT COUNT(*) FROM users) users,(SELECT COUNT(*) FROM trips) trips,(SELECT COUNT(*) FROM admins) admins,(SELECT COUNT(*) FROM admins WHERE must_change=1) admins_awaiting_password_change,(SELECT COUNT(*) FROM settings WHERE key='admin_bootstrapped') bootstrap_markers",
+    errors:
+      "SELECT category,code,COUNT(*) count FROM errors GROUP BY category,code",
+    usage:
+      "SELECT provider,status,COUNT(*) requests,SUM(input_tokens) input_tokens,SUM(output_tokens) output_tokens,SUM(cost) estimated_usd FROM usage GROUP BY provider,status",
+  };
+  const observed = {
+    at: new Date().toISOString(),
+    database: config().EXPERIMENT_RESOURCE_PREFIX + "-db",
+  };
+  for (const [key, sql] of Object.entries(queries))
+    observed[key] = (
+      await cf(`/d1/database/${db}/query`, "POST", { sql })
+    )[0].results;
+  writeFileSync(
+    "evidence/production-database.json",
+    JSON.stringify(observed, null, 2) + "\n",
+  );
+  console.log(JSON.stringify(observed, null, 2));
 } else if (cmd === "health") {
   const r = await fetch(c.APP_PUBLIC_URL + "/api/health");
   console.log(

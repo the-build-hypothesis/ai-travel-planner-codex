@@ -1,0 +1,38 @@
+{
+  "at": "2026-11-05T17:32:34.409Z",
+  "database": "bh-travel-v1-claude-codex-db",
+  "counts": [
+    {
+      "users": 0,
+      "trips": 2,
+      "admins": 1,
+      "admins_awaiting_password_change": 0,
+      "bootstrap_markers": 1
+    }
+  ],
+  "errors": [
+    {
+      "category": "application",
+      "code": "internal_error",
+      "count": 2
+    }
+  ],
+  "usage": [
+    {
+      "provider": "google",
+      "status": "success",
+      "requests": 1,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "estimated_usd": 0.032
+    },
+    {
+      "provider": "openai",
+      "status": "success",
+      "requests": 2,
+      "input_tokens": 1420,
+      "output_tokens": 966,
+      "estimated_usd": 0.0007926
+    }
+  ]
+}

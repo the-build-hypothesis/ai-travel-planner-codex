@@ -74,10 +74,49 @@ test("Guest can create, manually edit, map and reopen a trip", async ({
   await expect(page.locator(".leaflet-popup-content")).toContainText(
     "A quiet temple walk",
   );
+  await expect(page.locator(".leaflet-tile-loaded").first()).toBeVisible({
+    timeout: 15000,
+  });
   await page.screenshot({
     path: `evidence/map-${testInfo.project.name}.png`,
     fullPage: true,
   });
+  const secondDaySaved = await page.evaluate(async () => {
+    const tripId = new URL(location.href).searchParams.get("trip");
+    const { trip } = await (await fetch("/api/trips/" + tripId)).json();
+    const day = {
+      id: crypto.randomUUID(),
+      title: "A second look",
+      summary: "A garden afternoon.",
+      activities: [
+        {
+          ...trip.itinerary[0].activities[0],
+          id: crypto.randomUUID(),
+          title: "A garden afternoon",
+          lat: 35.02,
+          lng: 135.78,
+        },
+      ],
+    };
+    return (
+      await fetch("/api/trips/" + tripId, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          version: trip.version,
+          itinerary: [...trip.itinerary, day],
+        }),
+      })
+    ).ok;
+  });
+  expect(secondDaySaved).toBe(true);
+  await page.reload();
+  await page.getByRole("button", { name: "Day 2", exact: true }).click();
+  await page.getByRole("button", { name: "Map", exact: true }).click();
+  await expect(page.locator(".map-marker")).toHaveCount(1);
+  await page.locator(".map-marker").click();
+  await expect(page.locator(".leaflet-popup-content")).toContainText("Day 2");
+  await page.getByRole("button", { name: "Day 1", exact: true }).click();
   await page.getByRole("button", { name: "Itinerary", exact: true }).click();
   await page.getByRole("button", { name: "Edit A quiet temple walk" }).click();
   await page
@@ -92,6 +131,38 @@ test("Guest can create, manually edit, map and reopen a trip", async ({
       () => document.documentElement.scrollWidth <= innerWidth,
     ),
   ).toBe(true);
+  await page.getByRole("button", { name: "Add a little something" }).click();
+  await page.getByLabel("Activity", { exact: true }).fill("Afternoon tea");
+  await page.getByRole("button", { name: "Save activity" }).click();
+  await expect(page.getByRole("dialog").getByRole("alert")).toContainText(
+    "Overlapping activities",
+  );
+  await expect(page.getByLabel("Activity", { exact: true })).toHaveValue(
+    "Afternoon tea",
+  );
+  await page.getByLabel("Start time", { exact: true }).fill("11:00");
+  await page.getByRole("button", { name: "Save activity" }).click();
+  await expect(
+    page.getByRole("heading", { name: "Afternoon tea" }),
+  ).toBeVisible();
+  await page
+    .getByRole("button", { name: "Move Afternoon tea up", exact: true })
+    .click();
+  await expect(page.locator(".activity-card h3").first()).toHaveText(
+    "Afternoon tea",
+  );
+  page.once("dialog", (d) => d.accept());
+  await page
+    .getByRole("button", { name: "Remove Afternoon tea", exact: true })
+    .click();
+  await expect(
+    page.getByRole("heading", { name: "Afternoon tea" }),
+  ).toHaveCount(0);
+  page.once("dialog", (d) => d.accept());
+  await page.getByRole("button", { name: "Delete trip", exact: true }).click();
+  await expect(
+    page.getByRole("heading", { name: "Your journeys, all together." }),
+  ).toBeVisible();
 });
 test("Account login and recovery screens expose correct controls", async ({
   page,

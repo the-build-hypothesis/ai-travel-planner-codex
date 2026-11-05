@@ -1,0 +1,46 @@
+{
+  "at": "2026-11-05T17:24:00.363Z",
+  "success": true,
+  "builds": [
+    {
+      "id": "2f2596a9-a849-4ccd-bbe9-115f5d78dcfb",
+      "status": "stopped",
+      "outcome": "success",
+      "commit": "18776084f0efbd62c577519ce7663b39fd3a3734",
+      "source": "push_event",
+      "branch": "main",
+      "createdAt": "2026-11-05T17:23:24.989Z",
+      "stoppedAt": "2026-11-05T17:23:54.849Z"
+    },
+    {
+      "id": "7f3a2572-2648-4fdb-b282-13ecb886a468",
+      "status": "stopped",
+      "outcome": "success",
+      "commit": "fe5d98b743c14051de762d08bdcb5a1e87612a9a",
+      "source": "push_event",
+      "branch": "main",
+      "createdAt": "2026-11-05T17:18:14.234Z",
+      "stoppedAt": "2026-11-05T17:18:51.869Z"
+    },
+    {
+      "id": "7b6c9efc-5f5a-4eab-a112-2399f431b59f",
+      "status": "stopped",
+      "outcome": "fail",
+      "commit": "f153f96177827c3dc7f2accafe49d3af83304ad8",
+      "source": "push_event",
+      "branch": "main",
+      "createdAt": "2026-11-05T17:09:09.516Z",
+      "stoppedAt": "2026-11-05T17:09:19.788Z"
+    },
+    {
+      "id": "ed1260d5-a813-4d29-8091-c772742a86c4",
+      "status": "stopped",
+      "outcome": "fail",
+      "commit": "",
+      "source": "manual",
+      "branch": "main",
+      "createdAt": "2026-11-04T15:17:19.311Z",
+      "stoppedAt": "2026-11-04T15:17:57.223Z"
+    }
+  ]
+}

@@ -3,7 +3,13 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import type { Day } from "../worker/schema";
 const colors = ["#245c4d", "#ca7947", "#52749b", "#97677c", "#a48b40"];
-export default function MapView({ days }: { days: Day[] }) {
+export default function MapView({
+  days,
+  dayOrder,
+}: {
+  days: Day[];
+  dayOrder: string[];
+}) {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!ref.current) return;
@@ -14,7 +20,8 @@ export default function MapView({ days }: { days: Day[] }) {
         '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
     }).addTo(map);
     const points: L.LatLngExpression[] = [];
-    days.forEach((day, i) => {
+    days.forEach((day) => {
+      const i = Math.max(0, dayOrder.indexOf(day.id));
       const dayPoints: L.LatLngExpression[] = [];
       day.activities.forEach((a, j) => {
         if (a.lat === null || a.lng === null) return;
@@ -49,7 +56,7 @@ export default function MapView({ days }: { days: Day[] }) {
     return () => {
       map.remove();
     };
-  }, [days]);
+  }, [days, dayOrder]);
   return (
     <div className="map-wrapper">
       <div
@@ -65,9 +72,14 @@ export default function MapView({ days }: { days: Day[] }) {
         </div>
       )}
       <div className="map-legend">
-        {days.map((d, i) => (
+        {days.map((d) => (
           <span key={d.id}>
-            <i style={{ background: colors[i % colors.length] }} />
+            <i
+              style={{
+                background:
+                  colors[Math.max(0, dayOrder.indexOf(d.id)) % colors.length],
+              }}
+            />
             {d.title}
           </span>
         ))}

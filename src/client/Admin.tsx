@@ -698,7 +698,10 @@ export default function Admin() {
                                   ? row[c]
                                     ? "Yes"
                                     : "No"
-                                  : (row[c] ?? "—")}
+                                  : c === "email" && tab === "trips"
+                                    ? row.email ||
+                                      `Guest · ${row.guest_id?.slice(0, 8) || "unknown"}`
+                                    : (row[c] ?? "—")}
                             </td>
                           ))}
                           {tab === "users" && (
@@ -964,7 +967,7 @@ function Chart({
   rows: any[];
   value: string;
 }) {
-  const max = Math.max(...rows.map((r) => Number(r[value]) || 0), 1);
+  const max = Math.max(...rows.map((r) => Number(r[value]) || 0), 0) || 1;
   return (
     <div className="chart">
       <h3>{title}</h3>

@@ -1485,7 +1485,10 @@ function TripWorkspace({
                   </div>
                 }
               >
-                <MapView days={shown} />
+                <MapView
+                  days={shown}
+                  dayOrder={trip.itinerary.map((d) => d.id)}
+                />
               </Suspense>
               <p className="fine-print map-note">
                 AI coordinates are approximate. Confirm locations before

@@ -1,0 +1,12 @@
+{
+  "observedAt": "2026-11-05T17:37:54.895Z",
+  "command": "npm test",
+  "environment": "Cloudflare workerd with local D1; mocked external services",
+  "result": "passed",
+  "files": 1,
+  "passed": 39,
+  "failed": 0,
+  "skipped": 0,
+  "durationSeconds": 33.11,
+  "evidence": "Executed command output; test cases in tests/app.test.ts; PROGRESS.md"
+}

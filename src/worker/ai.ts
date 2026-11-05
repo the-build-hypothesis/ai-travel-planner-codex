@@ -39,11 +39,12 @@ export async function recordUsage(
   trip: string | null,
   record: Record<string, any>,
 ) {
+  const usageId = id();
   await env.DB.prepare(
     "INSERT INTO usage(id,timestamp,provider,model,operation,user_id,guest_id,trip_id,status,input_tokens,output_tokens,cached_tokens,units,cost,pricing,duration_ms,error) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
   )
     .bind(
-      id(),
+      usageId,
       now(),
       record.provider,
       record.model,
@@ -64,6 +65,7 @@ export async function recordUsage(
       record.error || null,
     )
     .run();
+  return usageId;
 }
 export async function generate(
   env: Env,
@@ -147,7 +149,7 @@ export async function generate(
     const input = data.usage?.input_tokens || 0,
       output = data.usage?.output_tokens || 0,
       cached = data.usage?.input_tokens_details?.cached_tokens || 0;
-    await recordUsage(env, actor, trip.id, {
+    const usageId = await recordUsage(env, actor, trip.id, {
       provider: "openai",
       model,
       operation: "itinerary",
@@ -170,12 +172,14 @@ export async function generate(
       .filter((c: any) => c.type === "output_text")
       .map((c: any) => c.text)
       .join("");
-    const parsed = AIResult.safeParse(JSON.parse(raw || "null"));
+    let structured: unknown = null;
+    try {
+      structured = JSON.parse(raw || "null");
+    } catch {}
+    const parsed = AIResult.safeParse(structured);
     if (!parsed.success) {
-      await env.DB.prepare(
-        "UPDATE usage SET status=?,error=? WHERE trip_id=? AND timestamp=(SELECT MAX(timestamp) FROM usage WHERE trip_id=?)",
-      )
-        .bind("invalid", "structured_output_validation", trip.id, trip.id)
+      await env.DB.prepare("UPDATE usage SET status=?,error=? WHERE id=?")
+        .bind("invalid", "structured_output_validation", usageId)
         .run();
       throw new HttpError(
         502,
