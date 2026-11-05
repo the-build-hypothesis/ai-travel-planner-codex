@@ -2,11 +2,11 @@
   "schemaVersion": 1,
   "specVersion": "1.7",
   "project": "AI Travel Planner / Elsewhere",
-  "generatedAt": "2026-11-05T17:40:10.165Z",
+  "generatedAt": "2026-11-05T17:45:37.631Z",
   "execution": {
     "startedAt": "2026-11-05T16:36:10Z",
     "endedAt": null,
-    "elapsedSeconds": 3840,
+    "elapsedSeconds": 4168,
     "deliveryLimitSeconds": 28800,
     "completionReason": "Application implementation complete; final handoff and deployment provenance verification. Controlled inbox verification remains an external review step.",
     "humanInterventions": [
@@ -21,9 +21,9 @@
   "deployment": {
     "status": "deployed and production-verified",
     "publicUrl": "https://ai-travel-planner-v1-codex.thebuildhypothesis.com",
-    "githubBuildsVerification": "success: 2f2596a9-a849-4ccd-bbe9-115f5d78dcfb",
-    "deployedCommitSha": "18776084f0efbd62c577519ce7663b39fd3a3734",
-    "verifiedSmokeCommitSha": "18776084f0efbd62c577519ce7663b39fd3a3734",
+    "githubBuildsVerification": "success: b6bd4d7e-0bc8-4390-afb8-b901986e3915",
+    "deployedCommitSha": "8928130856c9c6c2cf08b3f6816b62d053a5e594",
+    "verifiedSmokeCommitSha": "8928130856c9c6c2cf08b3f6816b62d053a5e594",
     "buildSource": "push_event"
   },
   "requirements": [
@@ -216,7 +216,7 @@
       "description": "Lifetime and period overview metrics include guests",
       "status": "Verified",
       "evidence": [
-        "Production overview matches 3 actual external calls and USD 0.0327926 estimate; 39 tests cover lifetime/period distinctions and guests."
+        "Production request records and overview totals agree; aggregate D1 evidence records 6 actual provider calls and USD 0.065572 estimate. 39 tests cover lifetime/period distinctions and guests. evidence/production-database.json"
       ]
     },
     {
@@ -368,7 +368,7 @@
       "description": "Commit/push and GitHub-triggered Workers Builds deployment",
       "status": "Verified",
       "evidence": [
-        "GitHub push-event build 2f2596a9-a849-4ccd-bbe9-115f5d78dcfb succeeded for 18776084f0efbd62c577519ce7663b39fd3a3734. HTTPS health matches application commit. evidence/github-builds.json; evidence/production-smoke.json"
+        "GitHub push-event build b6bd4d7e-0bc8-4390-afb8-b901986e3915 succeeded for 8928130856c9c6c2cf08b3f6816b62d053a5e594. HTTPS health matches application commit. evidence/github-builds.json; evidence/production-smoke.json"
       ]
     },
     {
@@ -382,9 +382,9 @@
     {
       "reference": "13.auth",
       "description": "Passwords, token hashing, ownership and CSRF/security headers",
-      "status": "Verified",
+      "status": "Partial",
       "evidence": [
-        "Security primitives, cross-origin rejection, guest/user/admin separation and token tests passed."
+        "Authentication/ownership/CSRF tests pass. Explicit production HTTP check found HTML headers absent while API headers are present; public/_headers fix implemented and awaiting deployed verification. evidence/security-headers-before-fix.json"
       ]
     },
     {
@@ -440,7 +440,7 @@
       "description": "Production end-to-end verification",
       "status": "Partial",
       "evidence": [
-        "24 live production checks plus 8 public browser cases and 16 admin browser checks pass. Actual email inbox receipt/link consumption and real multi-device account access were not executed; cross-browser ownership and server persistence were verified."
+        "22 live production checks plus 8 public browser cases and 16 admin browser checks pass. Actual email inbox receipt/link consumption and real multi-device account access were not executed; cross-browser ownership and server persistence were verified."
       ]
     },
     {
@@ -583,10 +583,20 @@
       "environment": "production HTTPS; actual OpenAI/Google/Cloudflare email",
       "result": "passed",
       "counts": {
-        "passed": 24,
+        "passed": 22,
         "failed": 0
       },
       "evidence": "evidence/production-smoke.json"
+    },
+    {
+      "procedure": "Production HTML/admin/API security headers",
+      "environment": "production HTTP",
+      "result": "failed",
+      "counts": {
+        "passed": 1,
+        "failed": 2
+      },
+      "evidence": "evidence/security-headers.json"
     }
   ],
   "integrations": {
@@ -635,6 +645,12 @@
   },
   "issues": [
     {
+      "severity": "high",
+      "description": "Static HTML does not yet carry the intended security headers; API responses do.",
+      "impact": "HTML is missing CSP, frame, HSTS and referrer protections at this checkpoint.",
+      "followUp": "Deploy public/_headers and rerun the production HTTP and browser checks."
+    },
+    {
       "severity": "medium",
       "description": "Actual verification/reset email inbox receipt and production link consumption were not verified.",
       "impact": "Email sends are accepted and mock token workflows pass, but delivery to a human-controlled mailbox remains an independent review step.",
@@ -655,7 +671,7 @@
     {
       "severity": "low",
       "description": "Cost estimates use base reference rates before free allowances, discounts, tax or authoritative invoice reconciliation.",
-      "impact": "Estimated USD 0.0327926 for observed production calls is not an actual billed total.",
+      "impact": "Estimated USD 0.065572 for observed production calls is not an actual billed total.",
       "followUp": "Reconcile against provider billing independently."
     },
     {
@@ -673,22 +689,22 @@
     "estimatedTestFixtureLlmAmount": 0.0029,
     "estimatedTestFixtureGoogleAmount": 0.032,
     "productionMeasuredUsage": {
-      "llmCalls": 2,
-      "inputTokens": 1420,
-      "outputTokens": 966,
+      "llmCalls": 4,
+      "inputTokens": 2832,
+      "outputTokens": 1912,
       "cachedTokens": 0,
-      "googlePlacesCalls": 1
+      "googlePlacesCalls": 2
     },
-    "productionEstimatedLlmAmount": 0.0007926,
-    "productionEstimatedPlacesAmount": 0.032,
-    "productionEstimatedCombinedAmount": 0.0327926,
+    "productionEstimatedLlmAmount": 0.001572,
+    "productionEstimatedPlacesAmount": 0.064,
+    "productionEstimatedCombinedAmount": 0.065572,
     "localLiveIntegrationCosts": null
   },
   "summary": {
     "counts": {
-      "Verified": 54,
-      "Partial": 1
+      "Verified": 53,
+      "Partial": 2
     },
-    "outcome": "Elsewhere is implemented, deployed through the existing GitHub-connected Cloudflare Worker, and usable at the assigned HTTPS URL. 39 Worker integration tests, 8 local and 8 production desktop/mobile browser cases, 24 live production smoke checks and 16 authenticated admin browser checks passed. Transactional verification/reset sends were accepted without recorded email failures; actual inbox receipt and production link consumption remain unverified. Deployment fields identify the last observed verified build at report generation."
+    "outcome": "Elsewhere is implemented, deployed through the existing GitHub-connected Cloudflare Worker, and usable at the assigned HTTPS URL. 39 Worker integration tests, 8 local and 8 production desktop/mobile browser cases, 22 live production smoke checks and 16 authenticated admin browser checks passed. Transactional verification/reset sends were accepted without recorded email failures; actual inbox receipt and production link consumption remain unverified. Deployment fields identify the last observed verified build at report generation. Static HTML header protection is being repaired and will be verified before final handoff."
   }
 }

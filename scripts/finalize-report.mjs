@@ -9,6 +9,18 @@ const state = read("evidence/status.json"),
 if (smoke.failed || admin.failed || unit.failed)
   throw new Error("Cannot finalize with failing primary verification");
 const build = builds.builds.find((b) => b.outcome === "success");
+const database = read("evidence/production-database.json");
+const security = read("evidence/security-headers.json");
+const headersVerified = security.results.every((r) => r.passed);
+const llmUsage = database.usage.find(
+  (r) => r.provider === "openai" && r.status === "success",
+);
+const placesUsage = database.usage.find(
+  (r) => r.provider === "google" && r.status === "success",
+);
+const combinedEstimate =
+  Number(llmUsage?.estimated_usd || 0) +
+  Number(placesUsage?.estimated_usd || 0);
 state.outcome = `Elsewhere is implemented, deployed through the existing GitHub-connected Cloudflare Worker, and usable at the assigned HTTPS URL. ${unit.passed} Worker integration tests, 8 local and 8 production desktop/mobile browser cases, ${smoke.passed} live production smoke checks and ${admin.passed} authenticated admin browser checks passed. Transactional verification/reset sends were accepted without recorded email failures; actual inbox receipt and production link consumption remain unverified. Deployment fields identify the last observed verified build at report generation.`;
 state.completionReason =
   "Application implementation complete; final handoff and deployment provenance verification. Controlled inbox verification remains an external review step.";
@@ -139,7 +151,7 @@ state.requirements = {
   6.1: {
     status: "Verified",
     evidence: [
-      "Production overview matches 3 actual external calls and USD 0.0327926 estimate; 39 tests cover lifetime/period distinctions and guests.",
+      `Production request records and overview totals agree; aggregate D1 evidence records ${Number(llmUsage?.requests || 0) + Number(placesUsage?.requests || 0)} actual provider calls and USD ${combinedEstimate} estimate. 39 tests cover lifetime/period distinctions and guests. evidence/production-database.json`,
     ],
   },
   6.2: {
@@ -371,15 +383,15 @@ state.costs = {
   source:
     "Provider-reported usage recorded by deployed application; no authoritative billing reconciliation",
   productionMeasuredUsage: {
-    llmCalls: 2,
-    inputTokens: 1420,
-    outputTokens: 966,
-    cachedTokens: 0,
-    googlePlacesCalls: 1,
+    llmCalls: llmUsage?.requests ?? null,
+    inputTokens: llmUsage?.input_tokens ?? null,
+    outputTokens: llmUsage?.output_tokens ?? null,
+    cachedTokens: llmUsage?.cached_tokens ?? null,
+    googlePlacesCalls: placesUsage?.requests ?? null,
   },
-  productionEstimatedLlmAmount: 0.0007926,
-  productionEstimatedPlacesAmount: 0.032,
-  productionEstimatedCombinedAmount: 0.0327926,
+  productionEstimatedLlmAmount: llmUsage?.estimated_usd ?? null,
+  productionEstimatedPlacesAmount: placesUsage?.estimated_usd ?? null,
+  productionEstimatedCombinedAmount: combinedEstimate,
   estimatedTestFixtureLlmAmount: 0.0029,
   estimatedTestFixtureGoogleAmount: 0.032,
   localLiveIntegrationCosts: null,
@@ -413,8 +425,7 @@ state.issues = [
     severity: "low",
     description:
       "Cost estimates use base reference rates before free allowances, discounts, tax or authoritative invoice reconciliation.",
-    impact:
-      "Estimated USD 0.0327926 for observed production calls is not an actual billed total.",
+    impact: `Estimated USD ${combinedEstimate} for observed production calls is not an actual billed total.`,
     followUp: "Reconcile against provider billing independently.",
   },
   {
@@ -427,6 +438,40 @@ state.issues = [
       "Add full trip pagination, finer report buckets and MFA as operational needs grow.",
   },
 ];
+state.requirements["13.auth"] = {
+  status: headersVerified ? "Verified" : "Partial",
+  evidence: [
+    headersVerified
+      ? "API authentication/isolation/token/CSRF tests pass; actual production HTML, admin HTML and API responses each carry CSP, frame protection, no-sniff, HSTS and referrer headers. evidence/security-headers.json"
+      : "Authentication/ownership/CSRF tests pass. Explicit production HTTP check found HTML headers absent while API headers are present; public/_headers fix implemented and awaiting deployed verification. evidence/security-headers-before-fix.json",
+  ],
+};
+state.checks = state.checks.filter(
+  (c) => c.procedure !== "Production HTML/admin/API security headers",
+);
+state.checks.push({
+  procedure: "Production HTML/admin/API security headers",
+  environment: "production HTTP",
+  result: headersVerified ? "passed" : "failed",
+  counts: {
+    passed: security.results.filter((r) => r.passed).length,
+    failed: security.results.filter((r) => !r.passed).length,
+  },
+  evidence: "evidence/security-headers.json",
+});
+if (!headersVerified) {
+  state.issues.unshift({
+    severity: "high",
+    description:
+      "Static HTML does not yet carry the intended security headers; API responses do.",
+    impact:
+      "HTML is missing CSP, frame, HSTS and referrer protections at this checkpoint.",
+    followUp:
+      "Deploy public/_headers and rerun the production HTTP and browser checks.",
+  });
+  state.outcome +=
+    " Static HTML header protection is being repaired and will be verified before final handoff.";
+}
 state.finalAssessment =
   "Ready for independent review: deployed travel planner, server-owned guests/accounts, actual configured OpenAI planning/editing, saved structured itineraries and conversations, live Places, interactive maps, separate secured administration, guest migration, monitoring, historical price accounting and protected audit. Required build reports, source, migrations and tests are committed/pushed through the configured pipeline. The current admin password has been replaced. Remaining external checks: controlled-inbox verification/reset-link consumption and physical multi-device login. Prioritize those checks before relying on email ownership/recovery operationally; pricing remains an estimate.";
 writeFileSync("evidence/status.json", JSON.stringify(state, null, 2) + "\n");

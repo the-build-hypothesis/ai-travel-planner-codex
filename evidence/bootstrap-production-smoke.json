@@ -1,0 +1,177 @@
+{
+  "at": "2026-11-05T17:24:58.297Z",
+  "environment": "production; actual OpenAI, Google and email-binding calls",
+  "url": "https://ai-travel-planner-v1-codex.thebuildhypothesis.com",
+  "checks": [
+    {
+      "name": "HTTPS production health and deployed commit",
+      "passed": true,
+      "status": 200,
+      "commit": "18776084f0efbd62c577519ce7663b39fd3a3734"
+    },
+    {
+      "name": "Administrator authentication",
+      "passed": true,
+      "status": 200,
+      "error": null
+    },
+    {
+      "name": "Bootstrap forced replacement blocks admin data",
+      "passed": true
+    },
+    {
+      "name": "Bootstrap password replaced",
+      "passed": true
+    },
+    {
+      "name": "Secure HTTP-only guest session",
+      "passed": true
+    },
+    {
+      "name": "Guest trip creation",
+      "passed": true
+    },
+    {
+      "name": "Live OpenAI structured itinerary generation",
+      "passed": true,
+      "status": 200,
+      "durationMs": 6355,
+      "error": null
+    },
+    {
+      "name": "Live conversational editing preserves unrelated day",
+      "passed": true,
+      "status": 200,
+      "error": null
+    },
+    {
+      "name": "Save/reopen preserves itinerary and conversation",
+      "passed": true,
+      "messageCount": 4
+    },
+    {
+      "name": "Production cross-guest authorization",
+      "passed": true
+    },
+    {
+      "name": "Live Google Places research",
+      "passed": true,
+      "status": 200,
+      "resultCount": 8,
+      "error": null
+    },
+    {
+      "name": "Registration and transactional email request",
+      "passed": true,
+      "emailStatus": "sent"
+    },
+    {
+      "name": "Production guest-to-account migration",
+      "passed": true
+    },
+    {
+      "name": "Logout invalidates session",
+      "passed": true
+    },
+    {
+      "name": "Registered login and persistence",
+      "passed": true
+    },
+    {
+      "name": "Password recovery non-enumerating request",
+      "passed": true,
+      "status": 200
+    },
+    {
+      "name": "Administrative trip inspection",
+      "passed": true
+    },
+    {
+      "name": "Production request-level usage/cost accounting",
+      "passed": true,
+      "records": [
+        {
+          "provider": "google",
+          "model": "places:searchText/Pro",
+          "status": "success",
+          "inputTokens": 0,
+          "outputTokens": 0,
+          "cachedTokens": 0,
+          "cost": 0.032,
+          "durationMs": 450
+        },
+        {
+          "provider": "openai",
+          "model": "gpt-4o-mini",
+          "status": "success",
+          "inputTokens": 953,
+          "outputTokens": 485,
+          "cachedTokens": 0,
+          "cost": 0.00043395,
+          "durationMs": 6857
+        },
+        {
+          "provider": "openai",
+          "model": "gpt-4o-mini",
+          "status": "success",
+          "inputTokens": 467,
+          "outputTokens": 481,
+          "cachedTokens": 0,
+          "cost": 0.00035864999999999996,
+          "durationMs": 5769
+        }
+      ]
+    },
+    {
+      "name": "Production monitoring/bindings/provider configuration",
+      "passed": true,
+      "configuration": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "email": true,
+        "places": true,
+        "pricingConfigured": true
+      },
+      "costs": {
+        "llm": 0.0007926,
+        "places": 0.032,
+        "total": 0.0327926,
+        "requests": 3,
+        "unknown_costs": 0,
+        "failures": 0,
+        "latency": 4358.666666666667,
+        "input_tokens": 1420,
+        "output_tokens": 966,
+        "unattributed_cost": 0,
+        "unattributed_requests": 0
+      },
+      "totals": {
+        "users": 1,
+        "trips": 1
+      }
+    },
+    {
+      "name": "Production date range filters activity but preserves lifetime counts",
+      "passed": true
+    },
+    {
+      "name": "Production last-active-administrator protection",
+      "passed": true
+    },
+    {
+      "name": "Production administrative audit log",
+      "passed": true
+    },
+    {
+      "name": "Protected test-account cleanup",
+      "passed": true
+    },
+    {
+      "name": "Admin logout invalidates session",
+      "passed": true
+    }
+  ],
+  "passed": 24,
+  "failed": 0,
+  "inboxDeliveryVerified": false
+}

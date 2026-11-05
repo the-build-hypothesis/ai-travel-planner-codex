@@ -210,7 +210,7 @@ if (cmd === "inspect") {
     errors:
       "SELECT category,code,COUNT(*) count FROM errors GROUP BY category,code",
     usage:
-      "SELECT provider,status,COUNT(*) requests,SUM(input_tokens) input_tokens,SUM(output_tokens) output_tokens,SUM(cost) estimated_usd FROM usage GROUP BY provider,status",
+      "SELECT provider,status,COUNT(*) requests,SUM(input_tokens) input_tokens,SUM(output_tokens) output_tokens,SUM(cached_tokens) cached_tokens,SUM(cost) estimated_usd FROM usage GROUP BY provider,status",
   };
   const observed = {
     at: new Date().toISOString(),
@@ -225,6 +225,34 @@ if (cmd === "inspect") {
     JSON.stringify(observed, null, 2) + "\n",
   );
   console.log(JSON.stringify(observed, null, 2));
+} else if (cmd === "security") {
+  const results = await Promise.all(
+    ["/", "/admin", "/api/health"].map(async (path) => {
+      const response = await fetch(c.APP_PUBLIC_URL + path);
+      const names = [
+        "content-security-policy",
+        "x-frame-options",
+        "x-content-type-options",
+        "strict-transport-security",
+        "referrer-policy",
+      ];
+      const headers = Object.fromEntries(
+        names.map((name) => [name, response.headers.get(name)]),
+      );
+      return {
+        path,
+        status: response.status,
+        headers,
+        passed: response.ok && names.every((name) => !!headers[name]),
+      };
+    }),
+  );
+  const evidence = { at: new Date().toISOString(), results };
+  writeFileSync(
+    "evidence/security-headers.json",
+    JSON.stringify(evidence, null, 2) + "\n",
+  );
+  console.log(JSON.stringify(evidence, null, 2));
 } else if (cmd === "health") {
   const r = await fetch(c.APP_PUBLIC_URL + "/api/health");
   console.log(

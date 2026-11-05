@@ -1,5 +1,5 @@
 {
-  "at": "2026-11-05T17:24:58.297Z",
+  "at": "2026-11-05T17:42:35.741Z",
   "environment": "production; actual OpenAI, Google and email-binding calls",
   "url": "https://ai-travel-planner-v1-codex.thebuildhypothesis.com",
   "checks": [
@@ -7,21 +7,13 @@
       "name": "HTTPS production health and deployed commit",
       "passed": true,
       "status": 200,
-      "commit": "18776084f0efbd62c577519ce7663b39fd3a3734"
+      "commit": "8928130856c9c6c2cf08b3f6816b62d053a5e594"
     },
     {
       "name": "Administrator authentication",
       "passed": true,
       "status": 200,
       "error": null
-    },
-    {
-      "name": "Bootstrap forced replacement blocks admin data",
-      "passed": true
-    },
-    {
-      "name": "Bootstrap password replaced",
-      "passed": true
     },
     {
       "name": "Secure HTTP-only guest session",
@@ -35,7 +27,7 @@
       "name": "Live OpenAI structured itinerary generation",
       "passed": true,
       "status": 200,
-      "durationMs": 6355,
+      "durationMs": 7277,
       "error": null
     },
     {
@@ -98,27 +90,27 @@
           "outputTokens": 0,
           "cachedTokens": 0,
           "cost": 0.032,
-          "durationMs": 450
+          "durationMs": 505
         },
         {
           "provider": "openai",
           "model": "gpt-4o-mini",
           "status": "success",
-          "inputTokens": 953,
-          "outputTokens": 485,
+          "inputTokens": 945,
+          "outputTokens": 473,
           "cachedTokens": 0,
-          "cost": 0.00043395,
-          "durationMs": 6857
+          "cost": 0.00042555,
+          "durationMs": 6800
         },
         {
           "provider": "openai",
           "model": "gpt-4o-mini",
           "status": "success",
           "inputTokens": 467,
-          "outputTokens": 481,
+          "outputTokens": 473,
           "cachedTokens": 0,
-          "cost": 0.00035864999999999996,
-          "durationMs": 5769
+          "cost": 0.00035385,
+          "durationMs": 6796
         }
       ]
     },
@@ -133,21 +125,21 @@
         "pricingConfigured": true
       },
       "costs": {
-        "llm": 0.0007926,
-        "places": 0.032,
-        "total": 0.0327926,
-        "requests": 3,
+        "llm": 0.001572,
+        "places": 0.064,
+        "total": 0.065572,
+        "requests": 6,
         "unknown_costs": 0,
         "failures": 0,
-        "latency": 4358.666666666667,
-        "input_tokens": 1420,
-        "output_tokens": 966,
+        "latency": 4529.5,
+        "input_tokens": 2832,
+        "output_tokens": 1912,
         "unattributed_cost": 0,
         "unattributed_requests": 0
       },
       "totals": {
         "users": 1,
-        "trips": 1
+        "trips": 3
       }
     },
     {
@@ -171,7 +163,7 @@
       "passed": true
     }
   ],
-  "passed": 24,
+  "passed": 22,
   "failed": 0,
   "inboxDeliveryVerified": false
 }
